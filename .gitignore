@@ -1,0 +1,43 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Go
+/bin/
+/tmp/
+/coverage.out
+coverage/
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+.cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local database / runtime data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-data/
+
+# Generated files
+generated/
