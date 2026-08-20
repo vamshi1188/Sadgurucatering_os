@@ -2,10 +2,9 @@ package app
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/router"
 )
 
 type App struct {
@@ -14,7 +13,7 @@ type App struct {
 }
 
 func New(cfg config.Config) *App {
-	handler := http.NewServeMux()
+	handler := router.New()
 
 	return &App{
 		Config: cfg,
