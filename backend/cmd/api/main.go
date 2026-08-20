@@ -14,5 +14,8 @@ func main() {
 	}
 
 	application := app.New(cfg)
-	application.Run()
+
+	if err := application.Run(); err != nil {
+		log.Fatalf("application stopped: %v", err)
+	}
 }
