@@ -1,6 +1,10 @@
 package router
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/health"
+)
 
 func New() http.Handler {
 	mux := http.NewServeMux()
@@ -17,4 +21,5 @@ func New() http.Handler {
 }
 
 func registerV1Routes(mux *http.ServeMux) {
+	mux.HandleFunc("/health", health.Handler)
 }
