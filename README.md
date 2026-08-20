@@ -41,6 +41,19 @@ The initial system is designed for fewer than 10 internal company users.
 
 The initial architecture direction is a modular monolith.
 
+## Repository Structure
+
+```text
+backend/        Go backend application
+frontend/       React frontend application
+worker/         Background job processing
+database/       Database-related resources
+deployments/    Deployment configuration
+scripts/        Development and operational scripts
+tests/          Integration and E2E tests
+docs/           Project documentation
+.github/        GitHub automation
+
 ### Backend
 
 Go
