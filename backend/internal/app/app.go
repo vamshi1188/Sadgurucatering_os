@@ -1,13 +1,26 @@
 package app
 
-import "fmt"
+import (
+	"fmt"
 
-type App struct{}
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
+)
 
-func New() *App {
-	return &App{}
+type App struct {
+	Config config.Config
+}
+
+func New(cfg config.Config) *App {
+	return &App{
+		Config: cfg,
+	}
 }
 
 func (a *App) Run() {
-	fmt.Println("Sadguru Catering OS API")
+	fmt.Printf(
+		"Starting %s v%s [%s]\n",
+		a.Config.App.Name,
+		a.Config.App.Version,
+		a.Config.Environment,
+	)
 }
