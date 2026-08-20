@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestLoadDefaults(t *testing.T) {
@@ -88,5 +89,37 @@ func TestSensitiveEnvironmentVariablesAreNotRequired(t *testing.T) {
 
 	if cfg.Redis.URL != "" {
 		t.Fatal("expected empty redis URL")
+	}
+}
+
+func TestGetDurationEnv(t *testing.T) {
+	t.Setenv("TEST_DURATION", "5s")
+
+	duration := getDurationEnv(
+		"TEST_DURATION",
+		10*time.Second,
+	)
+
+	if duration != 5*time.Second {
+		t.Fatalf(
+			"expected 5s, got %v",
+			duration,
+		)
+	}
+}
+
+func TestGetDurationEnvFallback(t *testing.T) {
+	t.Setenv("TEST_DURATION", "invalid")
+
+	duration := getDurationEnv(
+		"TEST_DURATION",
+		10*time.Second,
+	)
+
+	if duration != 10*time.Second {
+		t.Fatalf(
+			"expected fallback 10s, got %v",
+			duration,
+		)
 	}
 }

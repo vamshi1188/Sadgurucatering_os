@@ -4,15 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 )
 
 type Config struct {
-	App         AppConfig
-	HTTP        HTTPConfig
-	Database    DatabaseConfig
-	Redis       RedisConfig
-	Storage     StorageConfig
-	Environment string
+	App             AppConfig
+	HTTP            HTTPConfig
+	Database        DatabaseConfig
+	Redis           RedisConfig
+	Storage         StorageConfig
+	Environment     string
+	LogLevel        string
+	ShutdownTimeout time.Duration
 }
 
 type AppConfig struct {
@@ -43,6 +46,7 @@ type StorageConfig struct {
 func Load() (Config, error) {
 	cfg := Config{
 		Environment: getEnv("APP_ENV", "development"),
+		LogLevel:    getEnv("LOG_LEVEL", "info"),
 
 		App: AppConfig{
 			Name:    getEnv("APP_NAME", "Sadguru Catering OS"),
@@ -68,6 +72,11 @@ func Load() (Config, error) {
 			AccessKey: os.Getenv("STORAGE_ACCESS_KEY"),
 			SecretKey: os.Getenv("STORAGE_SECRET_KEY"),
 		},
+
+		ShutdownTimeout: getDurationEnv(
+			"SHUTDOWN_TIMEOUT",
+			10*time.Second,
+		),
 	}
 
 	if err := cfg.Validate(); err != nil {
@@ -120,4 +129,19 @@ func (c Config) String() string {
 		c.HTTP.Host,
 		c.HTTP.Port,
 	)
+}
+
+func getDurationEnv(key string, fallback time.Duration) time.Duration {
+	value := os.Getenv(key)
+
+	if value == "" {
+		return fallback
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		return fallback
+	}
+
+	return duration
 }
