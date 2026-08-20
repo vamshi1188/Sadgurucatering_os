@@ -17,5 +17,4 @@ func New() http.Handler {
 }
 
 func registerV1Routes(mux *http.ServeMux) {
-	// Future v1 routes will be registered here.
 }
