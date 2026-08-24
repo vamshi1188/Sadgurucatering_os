@@ -3,23 +3,40 @@ import {
   RouterProvider,
   type RouteObject,
 } from "react-router-dom";
+import { useHealthCheck } from "../hooks/useHealthCheck";
 
-function HomePlaceholder() {
-  return <div>Sadguru Catering OS — Home</div>;
+function DashboardPage() {
+  const { data, isLoading, isError } = useHealthCheck();
+
+  return (
+    <main>
+      <h1>Sadguru Catering OS</h1>
+
+      <section aria-label="Backend health">
+        <h2>Backend Health</h2>
+
+        {isLoading && <p>Checking backend...</p>}
+
+        {isError && <p>Backend unavailable</p>}
+
+        {data && <p>Backend status: {data.status}</p>}
+      </section>
+    </main>
+  );
 }
 
-function NotFoundPlaceholder() {
+function NotFoundPage() {
   return <div>Sadguru Catering OS — Page Not Found</div>;
 }
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <HomePlaceholder />,
+    element: <DashboardPage />,
   },
   {
     path: "*",
-    element: <NotFoundPlaceholder />,
+    element: <NotFoundPage />,
   },
 ];
 
