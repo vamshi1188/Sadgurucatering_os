@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import { routes } from "./AppRoutes";
+import { routes } from "./routes";
 
 vi.mock("../hooks/useHealthCheck", () => ({
   useHealthCheck: () => ({
