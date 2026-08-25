@@ -19,7 +19,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     build:
@@ -36,6 +37,12 @@ services:
       POSTGRES_DB: sadguru
       POSTGRES_USER: sadguru
       POSTGRES_PASSWORD: sadguru_dev_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sadguru -d sadguru"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
     ports:
       - "5432:5432"
     volumes:
