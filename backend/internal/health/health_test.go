@@ -5,16 +5,18 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/response"
 )
 
 func TestNewResponse(t *testing.T) {
-	response := NewResponse()
+	result := NewResponse()
 
-	if response.Status != "ok" {
+	if result.Status != "ok" {
 		t.Fatalf(
 			"expected status %q, got %q",
 			"ok",
-			response.Status,
+			result.Status,
 		)
 	}
 }
@@ -24,6 +26,11 @@ func TestHandler(t *testing.T) {
 		http.MethodGet,
 		"/health",
 		nil,
+	)
+
+	request.Header.Set(
+		"X-Request-ID",
+		"req_health_test",
 	)
 
 	recorder := httptest.NewRecorder()
@@ -39,26 +46,43 @@ func TestHandler(t *testing.T) {
 	}
 
 	if recorder.Header().Get("Content-Type") != "application/json" {
-		t.Fatalf("expected application/json content type")
+		t.Fatal("expected application/json content type")
 	}
 
-	var response Response
+	var body response.Response
 
 	if err := json.Unmarshal(
 		recorder.Body.Bytes(),
-		&response,
+		&body,
 	); err != nil {
 		t.Fatalf(
-			"failed to decode health response: %v",
+			"failed to decode API response: %v",
 			err,
 		)
 	}
 
-	if response.Status != "ok" {
+	if body.Meta == nil {
+		t.Fatal("expected response metadata")
+	}
+
+	if body.Meta.RequestID != "req_health_test" {
 		t.Fatalf(
-			"expected status %q, got %q",
+			"expected request ID %q, got %q",
+			"req_health_test",
+			body.Meta.RequestID,
+		)
+	}
+
+	data, ok := body.Data.(map[string]any)
+	if !ok {
+		t.Fatalf("expected response data object")
+	}
+
+	if data["status"] != "ok" {
+		t.Fatalf(
+			"expected status %q, got %v",
 			"ok",
-			response.Status,
+			data["status"],
 		)
 	}
 }
