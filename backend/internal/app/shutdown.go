@@ -47,6 +47,17 @@ func (a *App) shutdown() error {
 		return err
 	}
 
+	if a.DB != nil {
+		if err := a.DB.Close(); err != nil {
+			a.Logger.ErrorWithCause(
+				"database shutdown failed",
+				err,
+			)
+
+			return err
+		}
+	}
+
 	a.Logger.Info(
 		"graceful shutdown completed",
 	)

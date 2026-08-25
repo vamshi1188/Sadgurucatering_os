@@ -1,7 +1,10 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/logger"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/middleware"
@@ -12,6 +15,7 @@ type App struct {
 	Config     config.Config
 	Logger     *logger.Logger
 	HTTPServer *httpserver.Server
+	DB         *db.DB
 }
 
 func New(cfg config.Config) *App {
@@ -47,6 +51,19 @@ func (a *App) Run() error {
 		"host", a.Config.HTTP.Host,
 		"port", a.Config.HTTP.Port,
 	)
+
+	if a.Config.Database.URL == "" {
+		return fmt.Errorf("database configuration is required")
+	}
+
+	database, err := db.Open(a.Config.Database.URL)
+	if err != nil {
+		return fmt.Errorf("initialize database: %w", err)
+	}
+
+	a.DB = database
+
+	a.Logger.Info("database connection established")
 
 	go func() {
 		if err := a.HTTPServer.Start(); err != nil {
