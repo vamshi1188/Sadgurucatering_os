@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -25,7 +26,7 @@ type AppConfig struct {
 
 type HTTPConfig struct {
 	Host string
-	Port string
+	Port int
 }
 
 type DatabaseConfig struct {
@@ -44,18 +45,31 @@ type StorageConfig struct {
 }
 
 func Load() (Config, error) {
+	port, err := getIntEnv("HTTP_PORT", 8080)
+	if err != nil {
+		return Config{}, fmt.Errorf("HTTP_PORT: %w", err)
+	}
+
+	shutdownTimeout, err := getDurationEnv(
+		"SHUTDOWN_TIMEOUT",
+		10*time.Second,
+	)
+	if err != nil {
+		return Config{}, fmt.Errorf("SHUTDOWN_TIMEOUT: %w", err)
+	}
+
 	cfg := Config{
 		Environment: getEnv("APP_ENV", "development"),
 		LogLevel:    getEnv("LOG_LEVEL", "info"),
 
 		App: AppConfig{
 			Name:    getEnv("APP_NAME", "Sadguru Catering OS"),
-			Version: getEnv("APP_VERSION", "1.0.3"),
+			Version: getEnv("APP_VERSION", "1.0.7"),
 		},
 
 		HTTP: HTTPConfig{
 			Host: getEnv("HTTP_HOST", "0.0.0.0"),
-			Port: getEnv("HTTP_PORT", "8080"),
+			Port: port,
 		},
 
 		Database: DatabaseConfig{
@@ -73,10 +87,7 @@ func Load() (Config, error) {
 			SecretKey: os.Getenv("STORAGE_SECRET_KEY"),
 		},
 
-		ShutdownTimeout: getDurationEnv(
-			"SHUTDOWN_TIMEOUT",
-			10*time.Second,
-		),
+		ShutdownTimeout: shutdownTimeout,
 	}
 
 	if err := cfg.Validate(); err != nil {
@@ -95,16 +106,41 @@ func (c Config) Validate() error {
 		return errors.New("APP_VERSION cannot be empty")
 	}
 
-	if c.Environment == "" {
-		return errors.New("APP_ENV cannot be empty")
+	switch c.Environment {
+	case "development", "test", "production":
+	default:
+		return fmt.Errorf(
+			"APP_ENV must be one of development, test, production; got %q",
+			c.Environment,
+		)
+	}
+
+	switch c.LogLevel {
+	case "debug", "info", "warn", "error":
+	default:
+		return fmt.Errorf(
+			"LOG_LEVEL must be one of debug, info, warn, error; got %q",
+			c.LogLevel,
+		)
 	}
 
 	if c.HTTP.Host == "" {
 		return errors.New("HTTP_HOST cannot be empty")
 	}
 
-	if c.HTTP.Port == "" {
-		return errors.New("HTTP_PORT cannot be empty")
+	if c.HTTP.Port < 1 || c.HTTP.Port > 65535 {
+		return fmt.Errorf(
+			"HTTP_PORT must be between 1 and 65535; got %d",
+			c.HTTP.Port,
+		)
+	}
+
+	if c.ShutdownTimeout <= 0 {
+		return errors.New("SHUTDOWN_TIMEOUT must be greater than zero")
+	}
+
+	if c.Environment == "production" && c.Database.URL == "" {
+		return errors.New("DATABASE_URL cannot be empty in production")
 	}
 
 	return nil
@@ -120,28 +156,53 @@ func getEnv(key, fallback string) string {
 	return value
 }
 
+func getIntEnv(key string, fallback int) (int, error) {
+	value := os.Getenv(key)
+
+	if value == "" {
+		return fallback, nil
+	}
+
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"must be a valid integer; got %q",
+			value,
+		)
+	}
+
+	return parsed, nil
+}
+
 func (c Config) String() string {
 	return fmt.Sprintf(
-		"app=%s version=%s env=%s http=%s:%s",
+		"app=%s version=%s env=%s log_level=%s http=%s:%d",
 		c.App.Name,
 		c.App.Version,
 		c.Environment,
+		c.LogLevel,
 		c.HTTP.Host,
 		c.HTTP.Port,
 	)
 }
 
-func getDurationEnv(key string, fallback time.Duration) time.Duration {
+func getDurationEnv(
+	key string,
+	fallback time.Duration,
+) (time.Duration, error) {
 	value := os.Getenv(key)
 
 	if value == "" {
-		return fallback
+		return fallback, nil
 	}
 
 	duration, err := time.ParseDuration(value)
 	if err != nil {
-		return fallback
+		return 0, fmt.Errorf(
+			"must be a valid duration; got %q",
+			value,
+		)
 	}
 
-	return duration
+	return duration, nil
 }
