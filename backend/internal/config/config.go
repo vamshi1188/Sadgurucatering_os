@@ -64,7 +64,7 @@ func Load() (Config, error) {
 
 		App: AppConfig{
 			Name:    getEnv("APP_NAME", "Sadguru Catering OS"),
-			Version: getEnv("APP_VERSION", "1.0.8"),
+			Version: getEnv("APP_VERSION", "1.0.10"),
 		},
 
 		HTTP: HTTPConfig{
