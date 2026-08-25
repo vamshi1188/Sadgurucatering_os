@@ -6,7 +6,7 @@ services:
     environment:
       APP_ENV: development
       APP_NAME: Sadguru Catering OS
-      APP_VERSION: 1.0.6
+      APP_VERSION: 1.0.7
       LOG_LEVEL: info
       HTTP_HOST: 0.0.0.0
       HTTP_PORT: 8080

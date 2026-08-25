@@ -7,9 +7,13 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	handler := http.NewServeMux()
+	// handler := http.NewServeMux()
 
-	server := New("127.0.0.1", "8080", handler)
+	server := New(
+		"127.0.0.1",
+		8080,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
 
 	if server == nil {
 		t.Fatal("expected server to be initialized")
