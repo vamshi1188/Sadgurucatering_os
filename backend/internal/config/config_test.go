@@ -25,7 +25,7 @@ func TestLoadDefaults(t *testing.T) {
 		t.Fatalf("unexpected app name: %s", cfg.App.Name)
 	}
 
-	if cfg.App.Version != "1.0.8" {
+	if cfg.App.Version != "1.0.10" {
 		t.Fatalf("unexpected app version: %s", cfg.App.Version)
 	}
 
@@ -110,7 +110,7 @@ func TestValidateRejectsMissingAppName(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -130,7 +130,7 @@ func TestValidateRejectsInvalidEnvironment(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -150,7 +150,7 @@ func TestValidateRejectsInvalidLogLevel(t *testing.T) {
 		LogLevel:    "trace",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -170,7 +170,7 @@ func TestValidateRejectsInvalidHTTPPort(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -190,7 +190,7 @@ func TestValidateRequiresDatabaseInProduction(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -335,7 +335,7 @@ func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -370,7 +370,7 @@ func TestConfigString(t *testing.T) {
 		LogLevel:    "debug",
 		App: AppConfig{
 			Name:    "Test Catering OS",
-			Version: "1.0.8",
+			Version: "1.0.10",
 		},
 		HTTP: HTTPConfig{
 			Host: "127.0.0.1",
@@ -379,7 +379,7 @@ func TestConfigString(t *testing.T) {
 		ShutdownTimeout: 5 * time.Second,
 	}
 
-	expected := "app=Test Catering OS version=1.0.8 env=test log_level=debug http=127.0.0.1:9090"
+	expected := "app=Test Catering OS version=1.0.10 env=test log_level=debug http=127.0.0.1:9090"
 
 	if cfg.String() != expected {
 		t.Fatalf(
