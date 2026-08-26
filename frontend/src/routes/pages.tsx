@@ -1,4 +1,4 @@
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../auth/useAuth";
 import { useHealthCheck } from "../hooks/useHealthCheck";
 import { Button } from "../components/ui/Button";
 

@@ -1,6 +1,4 @@
 import {
-  createContext,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -11,15 +9,7 @@ import {
   login as loginRequest,
   logout as logoutRequest,
 } from "../api/auth";
-
-interface AuthContextValue {
-  authenticated: boolean;
-  loading: boolean;
-  login: (password: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext, type AuthContextValue } from "./auth-context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -73,14 +63,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-
-  return context;
 }
