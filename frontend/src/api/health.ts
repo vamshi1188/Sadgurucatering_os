@@ -4,6 +4,14 @@ export interface HealthResponse {
   status: string;
 }
 
-export function getHealth() {
-  return apiClient.get<HealthResponse>("/health");
+interface HealthApiResponse {
+  data: HealthResponse;
+}
+
+export async function getHealth(): Promise<HealthResponse> {
+  const response = await apiClient.get<HealthApiResponse>(
+    "/api/v1/health",
+  );
+
+  return response.data;
 }

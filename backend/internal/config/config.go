@@ -14,6 +14,7 @@ type Config struct {
 	Database        DatabaseConfig
 	Redis           RedisConfig
 	Storage         StorageConfig
+	Auth            AuthConfig
 	Environment     string
 	LogLevel        string
 	ShutdownTimeout time.Duration
@@ -42,6 +43,12 @@ type StorageConfig struct {
 	Bucket    string
 	AccessKey string
 	SecretKey string
+}
+
+type AuthConfig struct {
+	Password string
+	Secret   string
+	Secure   bool
 }
 
 func Load() (Config, error) {
@@ -85,6 +92,12 @@ func Load() (Config, error) {
 			Bucket:    os.Getenv("STORAGE_BUCKET"),
 			AccessKey: os.Getenv("STORAGE_ACCESS_KEY"),
 			SecretKey: os.Getenv("STORAGE_SECRET_KEY"),
+		},
+
+		Auth: AuthConfig{
+			Password: os.Getenv("MVP_AUTH_PASSWORD"),
+			Secret:   os.Getenv("MVP_AUTH_SESSION_SECRET"),
+			Secure:   getEnv("MVP_AUTH_COOKIE_SECURE", "false") == "true",
 		},
 
 		ShutdownTimeout: shutdownTimeout,

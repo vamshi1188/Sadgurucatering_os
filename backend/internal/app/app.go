@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
@@ -19,7 +20,13 @@ type App struct {
 }
 
 func New(cfg config.Config) *App {
-	handler := router.New()
+	authHandler := auth.New(auth.Config{
+		Password: cfg.Auth.Password,
+		Secret:   cfg.Auth.Secret,
+		Secure:   cfg.Auth.Secure,
+	})
+
+	handler := router.New(authHandler)
 
 	appLogger := logger.New(nil, cfg.LogLevel)
 
@@ -28,6 +35,7 @@ func New(cfg config.Config) *App {
 		middleware.RequestID,
 		middleware.Recovery,
 		middleware.SecurityHeaders,
+		middleware.CORS("http://localhost:5173"),
 		middleware.RequestLogger(appLogger),
 	)
 

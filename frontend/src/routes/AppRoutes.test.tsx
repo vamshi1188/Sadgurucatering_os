@@ -5,6 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import { AuthProvider } from "../auth/AuthContext";
 import { routes } from "./routes";
 
 vi.mock("../hooks/useHealthCheck", () => ({
@@ -13,6 +14,14 @@ vi.mock("../hooks/useHealthCheck", () => ({
     isLoading: false,
     isError: false,
   }),
+}));
+
+vi.mock("../api/auth", () => ({
+  getSession: vi.fn().mockResolvedValue({
+    authenticated: true,
+  }),
+  login: vi.fn(),
+  logout: vi.fn(),
 }));
 
 function renderRoute(initialEntry: string) {
@@ -24,17 +33,19 @@ function renderRoute(initialEntry: string) {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </QueryClientProvider>,
   );
 }
 
 describe("AppRoutes", () => {
-  it("renders the dashboard route", () => {
+  it("renders the dashboard route", async () => {
     renderRoute("/");
 
     expect(
-      screen.getByRole("heading", {
+      await screen.findByRole("heading", {
         name: "Sadguru Catering OS",
       }),
     ).toBeInTheDocument();
