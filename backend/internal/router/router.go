@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
 	appErrors "github.com/vamshi1188/Sadgurucatering_os/backend/internal/errors"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/health"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/response"
@@ -10,11 +11,19 @@ import (
 
 type Router struct {
 	apiRoutes map[string]http.Handler
+	auth      *auth.Handler
 }
 
-func New() http.Handler {
+func New(authHandler ...*auth.Handler) http.Handler {
+	var handler *auth.Handler
+
+	if len(authHandler) > 0 {
+		handler = authHandler[0]
+	}
+
 	router := &Router{
 		apiRoutes: make(map[string]http.Handler),
+		auth:      handler,
 	}
 
 	router.registerV1Routes()
@@ -28,6 +37,26 @@ func (r *Router) registerV1Routes() {
 		"/api/v1/health",
 		http.HandlerFunc(health.Handler),
 	)
+
+	if r.auth != nil {
+		r.registerAPI(
+			http.MethodPost,
+			"/api/v1/auth/login",
+			http.HandlerFunc(r.auth.Login),
+		)
+
+		r.registerAPI(
+			http.MethodGet,
+			"/api/v1/auth/session",
+			http.HandlerFunc(r.auth.Session),
+		)
+
+		r.registerAPI(
+			http.MethodPost,
+			"/api/v1/auth/logout",
+			http.HandlerFunc(r.auth.Logout),
+		)
+	}
 }
 
 func (r *Router) registerAPI(
@@ -38,7 +67,10 @@ func (r *Router) registerAPI(
 	r.apiRoutes[method+" "+path] = handler
 }
 
-func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (r *Router) ServeHTTP(
+	w http.ResponseWriter,
+	req *http.Request,
+) {
 	if handler, ok := r.apiRoutes[req.Method+" "+req.URL.Path]; ok {
 		handler.ServeHTTP(w, req)
 		return

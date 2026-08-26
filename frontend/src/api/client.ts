@@ -16,6 +16,7 @@ async function request<T>(
 ): Promise<T> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,

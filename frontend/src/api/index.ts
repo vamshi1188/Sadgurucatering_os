@@ -1,2 +1,3 @@
-export { ApiError, apiClient } from "./client";
-export { getHealth, type HealthResponse } from "./health";
+export * from "./client";
+export * from "./health";
+export * from "./auth";
