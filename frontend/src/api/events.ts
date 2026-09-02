@@ -27,13 +27,13 @@ interface ApiResponse<T> {
 
 export function getEvents() {
   return apiClient.get<ApiResponse<CateringEvent[]>>(
-    "/api/v1/events",
+    "/events",
   );
 }
 
 export function createEvent(input: CreateEventInput) {
   return apiClient.post<ApiResponse<CateringEvent>>(
-    "/api/v1/events",
+    "/events",
     input,
   );
 }
@@ -43,7 +43,7 @@ export function updateEventStatus(
   status: EventStatus,
 ) {
   return apiClient.patch<ApiResponse<CateringEvent>>(
-    `/api/v1/events/${id}/status`,
+    `/events/${id}/status`,
     { status },
   );
 }

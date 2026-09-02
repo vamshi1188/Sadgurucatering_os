@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
+	"path/filepath"
 	"time"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -15,95 +17,113 @@ type Config struct {
 	Redis           RedisConfig
 	Storage         StorageConfig
 	Auth            AuthConfig
+	Migrations      MigrationsConfig
+	ShutdownTimeout time.Duration
 	Environment     string
 	LogLevel        string
-	ShutdownTimeout time.Duration
 }
 
 type AppConfig struct {
-	Name    string
-	Version string
+	Name        string `toml:"name"`
+	Version     string `toml:"version"`
+	Environment string `toml:"environment"`
+	LogLevel    string `toml:"log_level"`
 }
 
 type HTTPConfig struct {
-	Host           string
-	Port           int
-	FrontendOrigin string
+	Host           string `toml:"host"`
+	Port           int    `toml:"port"`
+	FrontendOrigin string `toml:"frontend_origin"`
 }
 
 type DatabaseConfig struct {
-	URL string
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	Name     string `toml:"name"`
+	User     string `toml:"user"`
+	Password string `toml:"password"`
+	SSLMode  string `toml:"ssl_mode"`
+
+	// URL is constructed from the structured database settings.
+	URL string `toml:"-"`
 }
 
 type RedisConfig struct {
-	URL string
+	URL string `toml:"url"`
 }
 
 type StorageConfig struct {
-	Endpoint  string
-	Bucket    string
-	AccessKey string
-	SecretKey string
+	Endpoint  string `toml:"endpoint"`
+	Bucket    string `toml:"bucket"`
+	AccessKey string `toml:"access_key"`
+	SecretKey string `toml:"secret_key"`
 }
 
 type AuthConfig struct {
-	Password string
-	Secret   string
-	Secure   bool
+	Password string `toml:"password"`
+	Secret   string `toml:"session_secret"`
+	Secure   bool   `toml:"secure"`
+}
+
+type MigrationsConfig struct {
+	Path string `toml:"path"`
+}
+
+type ShutdownConfig struct {
+	Timeout string `toml:"timeout"`
+}
+
+type rawConfig struct {
+	App        AppConfig        `toml:"app"`
+	HTTP       HTTPConfig       `toml:"http"`
+	Database   DatabaseConfig   `toml:"database"`
+	Auth       AuthConfig       `toml:"auth"`
+	Shutdown   ShutdownConfig   `toml:"shutdown"`
+	Redis      RedisConfig      `toml:"redis"`
+	Storage    StorageConfig    `toml:"storage"`
+	Migrations MigrationsConfig `toml:"migrations"`
 }
 
 func Load() (Config, error) {
-	port, err := getIntEnv("HTTP_PORT", 8080)
-	if err != nil {
-		return Config{}, fmt.Errorf("HTTP_PORT: %w", err)
+	path := configPath()
+
+	return LoadFromFile(path)
+}
+
+func LoadFromFile(path string) (Config, error) {
+	if path == "" {
+		return Config{}, errors.New("configuration file path cannot be empty")
 	}
 
-	shutdownTimeout, err := getDurationEnv(
-		"SHUTDOWN_TIMEOUT",
-		10*time.Second,
-	)
+	var raw rawConfig
+
+	if _, err := toml.DecodeFile(path, &raw); err != nil {
+		return Config{}, fmt.Errorf("load configuration file %q: %w", path, err)
+	}
+
+	shutdownTimeout, err := time.ParseDuration(raw.Shutdown.Timeout)
 	if err != nil {
-		return Config{}, fmt.Errorf("SHUTDOWN_TIMEOUT: %w", err)
+		return Config{}, fmt.Errorf(
+			"shutdown.timeout: invalid duration %q: %w",
+			raw.Shutdown.Timeout,
+			err,
+		)
 	}
 
 	cfg := Config{
-		Environment: getEnv("APP_ENV", "development"),
-		LogLevel:    getEnv("LOG_LEVEL", "info"),
-
-		App: AppConfig{
-			Name:    getEnv("APP_NAME", "Sadguru Catering OS"),
-			Version: getEnv("APP_VERSION", "1.0.10"),
-		},
-
-		HTTP: HTTPConfig{
-			Host:           getEnv("HTTP_HOST", "0.0.0.0"),
-			Port:           port,
-			FrontendOrigin: getEnv("FRONTEND_ORIGIN", "http://localhost:5173"),
-		},
-
-		Database: DatabaseConfig{
-			URL: os.Getenv("DATABASE_URL"),
-		},
-
-		Redis: RedisConfig{
-			URL: os.Getenv("REDIS_URL"),
-		},
-
-		Storage: StorageConfig{
-			Endpoint:  os.Getenv("STORAGE_ENDPOINT"),
-			Bucket:    os.Getenv("STORAGE_BUCKET"),
-			AccessKey: os.Getenv("STORAGE_ACCESS_KEY"),
-			SecretKey: os.Getenv("STORAGE_SECRET_KEY"),
-		},
-
-		Auth: AuthConfig{
-			Password: os.Getenv("MVP_AUTH_PASSWORD"),
-			Secret:   os.Getenv("MVP_AUTH_SESSION_SECRET"),
-			Secure:   getEnv("MVP_AUTH_COOKIE_SECURE", "false") == "true",
-		},
-
+		App:             raw.App,
+		HTTP:            raw.HTTP,
+		Database:        raw.Database,
+		Redis:           raw.Redis,
+		Storage:         raw.Storage,
+		Auth:            raw.Auth,
+		Migrations:      raw.Migrations,
 		ShutdownTimeout: shutdownTimeout,
+		Environment:     raw.App.Environment,
+		LogLevel:        raw.App.LogLevel,
 	}
+
+	cfg.Database.URL = buildDatabaseURL(cfg.Database)
 
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err
@@ -112,20 +132,67 @@ func Load() (Config, error) {
 	return cfg, nil
 }
 
+func configPath() string {
+	if value := os.Getenv("SADGURU_CONFIG_FILE"); value != "" {
+		return value
+	}
+
+	candidates := []string{
+		"config/config.toml",
+		"backend/config/config.toml",
+	}
+
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+
+	if executable, err := os.Executable(); err == nil {
+		base := filepath.Dir(executable)
+		candidate := filepath.Join(base, "config", "config.toml")
+
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+
+	return "config/config.toml"
+}
+
+func buildDatabaseURL(database DatabaseConfig) string {
+	if database.Host == "" ||
+		database.Port == 0 ||
+		database.Name == "" ||
+		database.User == "" {
+		return ""
+	}
+
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		database.User,
+		database.Password,
+		database.Host,
+		database.Port,
+		database.Name,
+		database.SSLMode,
+	)
+}
+
 func (c Config) Validate() error {
 	if c.App.Name == "" {
-		return errors.New("APP_NAME cannot be empty")
+		return errors.New("app.name cannot be empty")
 	}
 
 	if c.App.Version == "" {
-		return errors.New("APP_VERSION cannot be empty")
+		return errors.New("app.version cannot be empty")
 	}
 
 	switch c.Environment {
 	case "development", "test", "production":
 	default:
 		return fmt.Errorf(
-			"APP_ENV must be one of development, test, production; got %q",
+			"app.environment must be one of development, test, production; got %q",
 			c.Environment,
 		)
 	}
@@ -134,59 +201,35 @@ func (c Config) Validate() error {
 	case "debug", "info", "warn", "error":
 	default:
 		return fmt.Errorf(
-			"LOG_LEVEL must be one of debug, info, warn, error; got %q",
+			"app.log_level must be one of debug, info, warn, error; got %q",
 			c.LogLevel,
 		)
 	}
 
 	if c.HTTP.Host == "" {
-		return errors.New("HTTP_HOST cannot be empty")
+		return errors.New("http.host cannot be empty")
 	}
 
 	if c.HTTP.Port < 1 || c.HTTP.Port > 65535 {
 		return fmt.Errorf(
-			"HTTP_PORT must be between 1 and 65535; got %d",
+			"http.port must be between 1 and 65535; got %d",
 			c.HTTP.Port,
 		)
 	}
 
 	if c.ShutdownTimeout <= 0 {
-		return errors.New("SHUTDOWN_TIMEOUT must be greater than zero")
+		return errors.New("shutdown.timeout must be greater than zero")
+	}
+
+	if c.Migrations.Path == "" {
+		return errors.New("migrations.path cannot be empty")
 	}
 
 	if c.Environment == "production" && c.Database.URL == "" {
-		return errors.New("DATABASE_URL cannot be empty in production")
+		return errors.New("database configuration is required in production")
 	}
 
 	return nil
-}
-
-func getEnv(key, fallback string) string {
-	value := os.Getenv(key)
-
-	if value == "" {
-		return fallback
-	}
-
-	return value
-}
-
-func getIntEnv(key string, fallback int) (int, error) {
-	value := os.Getenv(key)
-
-	if value == "" {
-		return fallback, nil
-	}
-
-	parsed, err := strconv.Atoi(value)
-	if err != nil {
-		return 0, fmt.Errorf(
-			"must be a valid integer; got %q",
-			value,
-		)
-	}
-
-	return parsed, nil
 }
 
 func (c Config) String() string {
@@ -199,25 +242,4 @@ func (c Config) String() string {
 		c.HTTP.Host,
 		c.HTTP.Port,
 	)
-}
-
-func getDurationEnv(
-	key string,
-	fallback time.Duration,
-) (time.Duration, error) {
-	value := os.Getenv(key)
-
-	if value == "" {
-		return fallback, nil
-	}
-
-	duration, err := time.ParseDuration(value)
-	if err != nil {
-		return 0, fmt.Errorf(
-			"must be a valid duration; got %q",
-			value,
-		)
-	}
-
-	return duration, nil
 }

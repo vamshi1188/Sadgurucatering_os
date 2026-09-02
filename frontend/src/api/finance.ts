@@ -29,7 +29,7 @@ export interface FinanceEntryInput {
 
 export function getEventFinancials(eventId: number) {
   return apiClient.get<ApiResponse<EventFinancials>>(
-    `/api/v1/events/${eventId}/financials`,
+    `/events/${eventId}/financials`,
   );
 }
 
@@ -38,7 +38,7 @@ export function addEventIncome(
   input: FinanceEntryInput,
 ) {
   return apiClient.post<ApiResponse<FinanceEntry>>(
-    `/api/v1/events/${eventId}/income`,
+    `/events/${eventId}/income`,
     input,
   );
 }
@@ -48,7 +48,7 @@ export function addEventExpense(
   input: FinanceEntryInput,
 ) {
   return apiClient.post<ApiResponse<FinanceEntry>>(
-    `/api/v1/events/${eventId}/expenses`,
+    `/events/${eventId}/expenses`,
     input,
   );
 }

@@ -5,13 +5,13 @@ export interface AuthResponse {
 }
 
 export function login(password: string) {
-  return apiClient.post<AuthResponse>("/api/v1/auth/login", { password });
+  return apiClient.post<AuthResponse>("/auth/login", { password });
 }
 
 export function getSession() {
-  return apiClient.get<AuthResponse>("/api/v1/auth/session");
+  return apiClient.get<AuthResponse>("/auth/session");
 }
 
 export function logout() {
-  return apiClient.post<AuthResponse>("/api/v1/auth/logout", {});
+  return apiClient.post<AuthResponse>("/auth/logout", {});
 }

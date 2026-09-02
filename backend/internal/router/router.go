@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/dashboard"
 	appErrors "github.com/vamshi1188/Sadgurucatering_os/backend/internal/errors"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
@@ -17,6 +18,7 @@ type Router struct {
 	auth      *auth.Handler
 	events    *events.Handler
 	finance   *finance.Handler
+	dashboard *dashboard.Handler
 }
 
 func New(authHandler ...*auth.Handler) http.Handler {
@@ -41,11 +43,21 @@ func NewWithFinance(
 	eventHandler *events.Handler,
 	financeHandler *finance.Handler,
 ) http.Handler {
+	return NewWithDashboard(authHandler, eventHandler, financeHandler, nil)
+}
+
+func NewWithDashboard(
+	authHandler *auth.Handler,
+	eventHandler *events.Handler,
+	financeHandler *finance.Handler,
+	dashboardHandler *dashboard.Handler,
+) http.Handler {
 	router := &Router{
 		apiRoutes: make(map[string]http.Handler),
 		auth:      authHandler,
 		events:    eventHandler,
 		finance:   financeHandler,
+		dashboard: dashboardHandler,
 	}
 
 	router.registerV1Routes()
@@ -98,6 +110,10 @@ func (r *Router) registerV1Routes() {
 			"/api/v1/events/{id}/financials",
 			r.auth.Require(http.HandlerFunc(r.finance.GetFinancials)),
 		)
+	}
+
+	if r.auth != nil && r.dashboard != nil {
+		r.registerAPI(http.MethodGet, "/api/v1/dashboard/summary", r.auth.Require(http.HandlerFunc(r.dashboard.Summary)))
 	}
 
 	if r.auth != nil && r.events != nil {

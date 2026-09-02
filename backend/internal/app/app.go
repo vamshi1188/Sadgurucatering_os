@@ -6,12 +6,14 @@ import (
 
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/dashboard"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/logger"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/middleware"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/migrations"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/router"
 )
 
@@ -32,7 +34,7 @@ func New(cfg config.Config) *App {
 		Secure:   cfg.Auth.Secure,
 	})
 
-	handler := buildHTTPHandler(authHandler, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
+	handler := buildHTTPHandler(authHandler, nil, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
 
 	return &App{
 		Config: cfg,
@@ -50,10 +52,11 @@ func buildHTTPHandler(
 	authHandler *auth.Handler,
 	eventHandler *events.Handler,
 	financeHandler *finance.Handler,
+	dashboardHandler *dashboard.Handler,
 	appLogger *logger.Logger,
 	frontendOrigin string,
 ) http.Handler {
-	handler := router.NewWithFinance(authHandler, eventHandler, financeHandler)
+	handler := router.NewWithDashboard(authHandler, eventHandler, financeHandler, dashboardHandler)
 
 	return middleware.Chain(
 		handler,
@@ -88,6 +91,19 @@ func (a *App) Run() error {
 
 	a.Logger.Info("database connection established")
 
+	if err := migrations.Up(
+		a.Config.Database.URL,
+		a.Config.Migrations.Path,
+	); err != nil {
+		_ = a.DB.Close()
+		return fmt.Errorf("run database migrations: %w", err)
+	}
+
+	a.Logger.Info(
+		"database migrations completed",
+		"path", a.Config.Migrations.Path,
+	)
+
 	eventRepository := events.NewRepository(a.DB.SQL)
 	eventService := events.NewService(eventRepository)
 	eventHandler := events.NewHandler(eventService)
@@ -95,11 +111,15 @@ func (a *App) Run() error {
 	financeRepository := finance.NewRepository(a.DB.SQL)
 	financeService := finance.NewService(financeRepository)
 	financeHandler := finance.NewHandler(financeService)
+	dashboardRepository := dashboard.NewRepository(a.DB.SQL)
+	dashboardService := dashboard.NewService(dashboardRepository)
+	dashboardHandler := dashboard.NewHandler(dashboardService)
 
 	handler := buildHTTPHandler(
 		a.Auth,
 		eventHandler,
 		financeHandler,
+		dashboardHandler,
 		a.Logger,
 		a.Config.HTTP.FrontendOrigin,
 	)

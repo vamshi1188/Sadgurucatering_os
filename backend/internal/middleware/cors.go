@@ -24,7 +24,7 @@ func CORS(allowedOrigin string) Middleware {
 
 			w.Header().Set(
 				"Access-Control-Allow-Methods",
-				"GET, POST, OPTIONS",
+				"GET, POST, PATCH, OPTIONS",
 			)
 
 			if r.Method == http.MethodOptions {

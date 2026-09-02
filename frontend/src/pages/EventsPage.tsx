@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   createEvent,
   getEvents,
@@ -20,6 +21,21 @@ import { Input } from "../components/ui/Input";
 
 type Filter = "all" | EventStatus;
 type FinanceEntryType = "income" | "expense";
+
+export function groupEventsByDate(events: CateringEvent[]) {
+  return events.reduce<Record<string, CateringEvent[]>>((groups, event) => {
+    groups[event.event_date] ??= [];
+    groups[event.event_date].push(event);
+    return groups;
+  }, {});
+}
+
+function localDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -286,6 +302,9 @@ function EventCard({
       void queryClient.invalidateQueries({
         queryKey: ["event-financials", event.id],
       });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      });
       setEntryType(null);
     },
   });
@@ -301,6 +320,9 @@ function EventCard({
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["event-financials", event.id],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
       });
       setEntryType(null);
     },
@@ -325,13 +347,13 @@ function EventCard({
 
   return (
     <Card className="event-card">
-      <div className="event-date">
+      <div className="event-card-date">
         <span>{date.month}</span>
         <strong>{date.day}</strong>
       </div>
 
-      <div className="event-main">
-        <div className="event-heading">
+      <div className="event-card-body">
+        <div className="event-card-heading">
           <div>
             <h3>{event.title}</h3>
             <p>{event.venue}</p>
@@ -339,7 +361,7 @@ function EventCard({
           <Badge tone={event.status}>{event.status}</Badge>
         </div>
 
-        <div className="event-footer">
+        <div className="event-card-footer">
           <span className="guest-count">
             <strong>{event.guest_count.toLocaleString("en-IN")}</strong>{" "}
             guests
@@ -392,10 +414,14 @@ function EventCard({
 }
 
 export function EventsPage() {
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<Filter>("all");
   const [showCreate, setShowCreate] = useState(false);
-  const [expandedEventId, setExpandedEventId] = useState<number | null>(null);
+  const [expandedEventId, setExpandedEventId] = useState<number | null>(() => {
+    const eventId = Number(searchParams.get("event"));
+    return Number.isInteger(eventId) && eventId > 0 ? eventId : null;
+  });
   const [title, setTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [venue, setVenue] = useState("");
@@ -410,6 +436,9 @@ export function EventsPage() {
     mutationFn: createEvent,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["events"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      });
       setShowCreate(false);
       setTitle("");
       setEventDate("");
@@ -428,10 +457,13 @@ export function EventsPage() {
     }) => updateEventStatus(id, status),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["events"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      });
     },
   });
 
-  const events = eventsQuery.data?.data ?? [];
+  const events = useMemo(() => eventsQuery.data?.data ?? [], [eventsQuery.data]);
 
   const counts = useMemo(
     () => ({
@@ -442,10 +474,18 @@ export function EventsPage() {
     [events],
   );
 
-  const filtered =
-    filter === "all"
-      ? events
-      : events.filter((event) => event.status === filter);
+  const filtered = useMemo(
+    () =>
+      filter === "all"
+        ? events
+        : events.filter((event) => event.status === filter),
+    [filter, events],
+  );
+
+  const groupedEvents = useMemo(() => groupEventsByDate(filtered), [filtered]);
+  const today = localDateKey();
+  const todayEvents = filtered.filter((event) => event.event_date === today);
+  const futureDates = Object.keys(groupedEvents).filter((date) => date > today).sort();
 
   function changeStatus(event: CateringEvent) {
     const nextStatus =
@@ -557,20 +597,18 @@ export function EventsPage() {
           </div>
         )}
 
-      <div className="event-list">
-        {filtered.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            pending={
-              statusMutation.isPending &&
-              statusMutation.variables?.id === event.id
-            }
-            onStatusChange={changeStatus}
-            expanded={expandedEventId === event.id}
-            onToggleFinance={toggleFinance}
-          />
-        ))}
+      <div className="event-day-groups">
+        {todayEvents.length > 0 && (
+          <section className="event-day-group">
+            <div className="event-day-heading"><span className="section-kicker">TODAY</span><strong>{todayEvents.length} events</strong></div>
+            {(["upcoming", "running", "completed"] as EventStatus[]).map((status) => {
+              const events = todayEvents.filter((event) => event.status === status);
+              return events.length > 0 ? <div className="event-status-group" key={status}><h3>{status}</h3>{events.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div> : null;
+            })}
+          </section>
+        )}
+        {futureDates.length > 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">UPCOMING</span><strong>Future events</strong></div>{futureDates.map((date) => <div className="event-status-group" key={date}><h3>{formatDate(date).month} {formatDate(date).day}</h3>{groupedEvents[date].map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div>)}</section>}
+        {filtered.length > 0 && todayEvents.length === 0 && futureDates.length === 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">COMPLETED HISTORY</span><strong>Past events</strong></div>{filtered.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</section>}
       </div>
 
       {showCreate && (

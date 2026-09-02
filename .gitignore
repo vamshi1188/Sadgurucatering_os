@@ -40,4 +40,5 @@ data/
 docker-data/
 
 # Generated files
-generated/
+generated/config/config.toml
+backend/config/config.toml
