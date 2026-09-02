@@ -8,6 +8,7 @@ import (
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/logger"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/middleware"
@@ -31,7 +32,7 @@ func New(cfg config.Config) *App {
 		Secure:   cfg.Auth.Secure,
 	})
 
-	handler := buildHTTPHandler(authHandler, nil, appLogger, cfg.HTTP.FrontendOrigin)
+	handler := buildHTTPHandler(authHandler, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
 
 	return &App{
 		Config: cfg,
@@ -48,10 +49,11 @@ func New(cfg config.Config) *App {
 func buildHTTPHandler(
 	authHandler *auth.Handler,
 	eventHandler *events.Handler,
+	financeHandler *finance.Handler,
 	appLogger *logger.Logger,
 	frontendOrigin string,
 ) http.Handler {
-	handler := router.NewWithEvents(authHandler, eventHandler)
+	handler := router.NewWithFinance(authHandler, eventHandler, financeHandler)
 
 	return middleware.Chain(
 		handler,
@@ -90,9 +92,14 @@ func (a *App) Run() error {
 	eventService := events.NewService(eventRepository)
 	eventHandler := events.NewHandler(eventService)
 
+	financeRepository := finance.NewRepository(a.DB.SQL)
+	financeService := finance.NewService(financeRepository)
+	financeHandler := finance.NewHandler(financeService)
+
 	handler := buildHTTPHandler(
 		a.Auth,
 		eventHandler,
+		financeHandler,
 		a.Logger,
 		a.Config.HTTP.FrontendOrigin,
 	)
