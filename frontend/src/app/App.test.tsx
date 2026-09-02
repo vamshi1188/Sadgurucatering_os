@@ -24,16 +24,22 @@ describe("App", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: "Sadguru Catering OS",
+        name: "Operations workspace",
       }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Backend Health"),
+      screen.getByRole("heading", {
+        name: "Welcome back, Vamshi.",
+      }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Backend status: ok"),
+      screen.getByText("Recent events"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("System health"),
     ).toBeInTheDocument();
   });
 });

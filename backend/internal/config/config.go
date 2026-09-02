@@ -26,8 +26,9 @@ type AppConfig struct {
 }
 
 type HTTPConfig struct {
-	Host string
-	Port int
+	Host           string
+	Port           int
+	FrontendOrigin string
 }
 
 type DatabaseConfig struct {
@@ -75,8 +76,9 @@ func Load() (Config, error) {
 		},
 
 		HTTP: HTTPConfig{
-			Host: getEnv("HTTP_HOST", "0.0.0.0"),
-			Port: port,
+			Host:           getEnv("HTTP_HOST", "0.0.0.0"),
+			Port:           port,
+			FrontendOrigin: getEnv("FRONTEND_ORIGIN", "http://localhost:5173"),
 		},
 
 		Database: DatabaseConfig{

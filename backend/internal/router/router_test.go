@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 
 	appErrors "github.com/vamshi1188/Sadgurucatering_os/backend/internal/errors"
 )
@@ -308,6 +309,37 @@ func TestAuthLogoutRoute(t *testing.T) {
 		t.Fatalf(
 			"expected session cookie deletion, got MaxAge=%d",
 			cookies[0].MaxAge,
+		)
+	}
+}
+
+func TestEventsUpdateStatusDynamicPatchRoute(t *testing.T) {
+	authHandler := auth.New(auth.Config{
+		Password: "test-password",
+		Secret:   "test-session-secret",
+		Secure:   false,
+	})
+
+	eventsHandler := events.NewHandler(nil)
+	handler := NewWithEvents(authHandler, eventsHandler)
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/api/v1/events/123/status",
+		strings.NewReader(`{"status":"running"}`),
+	)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf(
+			"expected status %d, got %d",
+			http.StatusUnauthorized,
+			rec.Code,
 		)
 	}
 }

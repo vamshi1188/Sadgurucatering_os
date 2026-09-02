@@ -36,7 +36,7 @@ function renderRoute(initialEntry: string) {
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
 }
 
@@ -46,12 +46,14 @@ describe("AppRoutes", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: "Sadguru Catering OS",
+        name: "Operations workspace",
       }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Backend status: ok"),
+      screen.getByRole("heading", {
+        name: "Welcome back, Vamshi.",
+      }),
     ).toBeInTheDocument();
   });
 
@@ -59,7 +61,13 @@ describe("AppRoutes", () => {
     renderRoute("/does-not-exist");
 
     expect(
-      screen.getByText("Sadguru Catering OS — Page Not Found"),
+      screen.getByRole("heading", {
+        name: "Page not found",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("The page you're looking for doesn't exist."),
     ).toBeInTheDocument();
   });
 });
