@@ -2,10 +2,12 @@ package app
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/config"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/logger"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/middleware"
@@ -17,37 +19,48 @@ type App struct {
 	Logger     *logger.Logger
 	HTTPServer *httpserver.Server
 	DB         *db.DB
+	Auth       *auth.Handler
 }
 
 func New(cfg config.Config) *App {
+	appLogger := logger.New(nil, cfg.LogLevel)
+
 	authHandler := auth.New(auth.Config{
 		Password: cfg.Auth.Password,
 		Secret:   cfg.Auth.Secret,
 		Secure:   cfg.Auth.Secure,
 	})
 
-	handler := router.New(authHandler)
-
-	appLogger := logger.New(nil, cfg.LogLevel)
-
-	handler = middleware.Chain(
-		handler,
-		middleware.RequestID,
-		middleware.Recovery,
-		middleware.SecurityHeaders,
-		middleware.CORS("http://localhost:5173"),
-		middleware.RequestLogger(appLogger),
-	)
+	handler := buildHTTPHandler(authHandler, nil, appLogger, cfg.HTTP.FrontendOrigin)
 
 	return &App{
 		Config: cfg,
 		Logger: appLogger,
+		Auth:   authHandler,
 		HTTPServer: httpserver.New(
 			cfg.HTTP.Host,
 			cfg.HTTP.Port,
 			handler,
 		),
 	}
+}
+
+func buildHTTPHandler(
+	authHandler *auth.Handler,
+	eventHandler *events.Handler,
+	appLogger *logger.Logger,
+	frontendOrigin string,
+) http.Handler {
+	handler := router.NewWithEvents(authHandler, eventHandler)
+
+	return middleware.Chain(
+		handler,
+		middleware.RequestID,
+		middleware.Recovery,
+		middleware.SecurityHeaders,
+		middleware.CORS(frontendOrigin),
+		middleware.RequestLogger(appLogger),
+	)
 }
 
 func (a *App) Run() error {
@@ -72,6 +85,23 @@ func (a *App) Run() error {
 	a.DB = database
 
 	a.Logger.Info("database connection established")
+
+	eventRepository := events.NewRepository(a.DB.SQL)
+	eventService := events.NewService(eventRepository)
+	eventHandler := events.NewHandler(eventService)
+
+	handler := buildHTTPHandler(
+		a.Auth,
+		eventHandler,
+		a.Logger,
+		a.Config.HTTP.FrontendOrigin,
+	)
+
+	a.HTTPServer = httpserver.New(
+		a.Config.HTTP.Host,
+		a.Config.HTTP.Port,
+		handler,
+	)
 
 	go func() {
 		if err := a.HTTPServer.Start(); err != nil {
