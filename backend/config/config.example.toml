@@ -1,0 +1,38 @@
+[app]
+name = "Sadguru Catering OS"
+environment = "development"
+version = "0.4.0"
+log_level = "info"
+
+[http]
+host = "0.0.0.0"
+port = 8080
+frontend_origin = "http://localhost:3000"
+
+[database]
+host = "postgres"
+port = 5432
+name = "sadguru"
+user = "sadguru"
+password = "CHANGE_ME"
+ssl_mode = "disable"
+
+[auth]
+password = "CHANGE_ME"
+session_secret = "CHANGE_ME"
+secure = false
+
+[shutdown]
+timeout = "10s"
+
+[redis]
+url = ""
+
+[storage]
+endpoint = ""
+bucket = ""
+access_key = ""
+secret_key = ""
+
+[migrations]
+path = "migrations"

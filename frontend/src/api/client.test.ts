@@ -18,7 +18,7 @@ describe("apiClient", () => {
 
     expect(result).toEqual({ status: "ok" });
     expect(fetch).toHaveBeenCalledWith(
-      "http://localhost:8080/api/v1/health",
+      "/api/v1/health",
       expect.objectContaining({
         headers: {
           "Content-Type": "application/json",

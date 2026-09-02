@@ -1,36 +1,4 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      APP_ENV: development
-      APP_NAME: Sadguru Catering OS
-      APP_VERSION: 1.0.10
-      LOG_LEVEL: info
-      HTTP_HOST: 0.0.0.0
-      HTTP_PORT: 8080
-      DATABASE_URL: postgres://sadguru:sadguru_dev_password@postgres:5432/sadguru?sslmode=disable
-      REDIS_URL: ""
-      STORAGE_ENDPOINT: ""
-      STORAGE_BUCKET: ""
-      STORAGE_ACCESS_KEY: ""
-      STORAGE_SECRET_KEY: ""
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-
   postgres:
     image: postgres:17-alpine
     environment:
@@ -47,6 +15,34 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/config/config.toml:/app/config/config.toml:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/v1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

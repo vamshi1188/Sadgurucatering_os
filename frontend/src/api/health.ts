@@ -10,7 +10,7 @@ interface HealthApiResponse {
 
 export async function getHealth(): Promise<HealthResponse> {
   const response = await apiClient.get<HealthApiResponse>(
-    "/api/v1/health",
+    "/health",
   );
 
   return response.data;

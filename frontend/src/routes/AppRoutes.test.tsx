@@ -16,6 +16,21 @@ vi.mock("../hooks/useHealthCheck", () => ({
   }),
 }));
 
+vi.mock("../api/dashboard", () => ({
+  getDashboardSummary: vi.fn().mockResolvedValue({
+    data: {
+      event_count: 0,
+      upcoming_count: 0,
+      running_count: 0,
+      completed_count: 0,
+      total_income: "0.00",
+      total_expenses: "0.00",
+      profit: "0.00",
+      events: [],
+    },
+  }),
+}));
+
 vi.mock("../api/auth", () => ({
   getSession: vi.fn().mockResolvedValue({
     authenticated: true,
@@ -52,7 +67,7 @@ describe("AppRoutes", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Welcome back, Vamshi.",
+        name: "Good morning",
       }),
     ).toBeInTheDocument();
   });

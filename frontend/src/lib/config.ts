@@ -2,16 +2,8 @@ interface AppConfig {
   apiBaseUrl: string;
 }
 
-function readConfig(): AppConfig {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const appConfig: AppConfig = {
+  apiBaseUrl: "/api/v1",
+};
 
-  if (!apiBaseUrl) {
-    throw new Error(
-      "Missing required environment variable: VITE_API_BASE_URL",
-    );
-  }
-
-  return Object.freeze({ apiBaseUrl });
-}
-
-export const config = readConfig();
+export const config = Object.freeze(appConfig);

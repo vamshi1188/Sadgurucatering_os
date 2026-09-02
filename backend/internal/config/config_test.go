@@ -2,21 +2,71 @@ package config
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
 
-func TestLoadDefaults(t *testing.T) {
-	t.Setenv("APP_ENV", "")
-	t.Setenv("APP_NAME", "")
-	t.Setenv("APP_VERSION", "")
-	t.Setenv("LOG_LEVEL", "")
-	t.Setenv("HTTP_HOST", "")
-	t.Setenv("HTTP_PORT", "")
-	t.Setenv("DATABASE_URL", "")
-	t.Setenv("SHUTDOWN_TIMEOUT", "")
+func writeTestConfig(t *testing.T, content string) string {
+	t.Helper()
 
-	cfg, err := Load()
+	path := filepath.Join(t.TempDir(), "config.toml")
+
+	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
+		t.Fatalf("write test config: %v", err)
+	}
+
+	return path
+}
+
+func validConfigTOML() string {
+	return `
+[app]
+name = "Sadguru Catering OS"
+environment = "test"
+version = "0.4.0"
+log_level = "debug"
+
+[http]
+host = "127.0.0.1"
+port = 9090
+frontend_origin = "http://localhost:3000"
+
+[database]
+host = "localhost"
+port = 5432
+name = "sadguru"
+user = "sadguru"
+password = "test-password"
+ssl_mode = "disable"
+
+[auth]
+password = "test-auth-password"
+session_secret = "test-session-secret"
+secure = false
+
+[shutdown]
+timeout = "5s"
+
+[redis]
+url = ""
+
+[storage]
+endpoint = ""
+bucket = ""
+access_key = ""
+secret_key = ""
+
+[migrations]
+path = "migrations"
+`
+}
+
+func TestLoadFromFile(t *testing.T) {
+	path := writeTestConfig(t, validConfigTOML())
+
+	cfg, err := LoadFromFile(path)
 	if err != nil {
 		t.Fatalf("expected configuration to load, got error: %v", err)
 	}
@@ -25,59 +75,12 @@ func TestLoadDefaults(t *testing.T) {
 		t.Fatalf("unexpected app name: %s", cfg.App.Name)
 	}
 
-	if cfg.App.Version != "1.0.10" {
+	if cfg.App.Version != "0.4.0" {
 		t.Fatalf("unexpected app version: %s", cfg.App.Version)
-	}
-
-	if cfg.Environment != "development" {
-		t.Fatalf("unexpected environment: %s", cfg.Environment)
-	}
-
-	if cfg.LogLevel != "info" {
-		t.Fatalf("unexpected log level: %s", cfg.LogLevel)
-	}
-
-	if cfg.HTTP.Host != "0.0.0.0" {
-		t.Fatalf("unexpected HTTP host: %s", cfg.HTTP.Host)
-	}
-
-	if cfg.HTTP.Port != 8080 {
-		t.Fatalf("unexpected HTTP port: %d", cfg.HTTP.Port)
-	}
-
-	if cfg.ShutdownTimeout != 10*time.Second {
-		t.Fatalf(
-			"unexpected shutdown timeout: %v",
-			cfg.ShutdownTimeout,
-		)
-	}
-}
-
-func TestLoadEnvironmentVariables(t *testing.T) {
-	t.Setenv("APP_ENV", "test")
-	t.Setenv("APP_NAME", "Test Catering OS")
-	t.Setenv("APP_VERSION", "1.0.7-test")
-	t.Setenv("LOG_LEVEL", "debug")
-	t.Setenv("HTTP_HOST", "127.0.0.1")
-	t.Setenv("HTTP_PORT", "9090")
-	t.Setenv("DATABASE_URL", "postgres://test")
-	t.Setenv("SHUTDOWN_TIMEOUT", "5s")
-
-	cfg, err := Load()
-	if err != nil {
-		t.Fatalf("expected configuration to load, got error: %v", err)
 	}
 
 	if cfg.Environment != "test" {
 		t.Fatalf("unexpected environment: %s", cfg.Environment)
-	}
-
-	if cfg.App.Name != "Test Catering OS" {
-		t.Fatalf("unexpected app name: %s", cfg.App.Name)
-	}
-
-	if cfg.App.Version != "1.0.7-test" {
-		t.Fatalf("unexpected app version: %s", cfg.App.Version)
 	}
 
 	if cfg.LogLevel != "debug" {
@@ -92,15 +95,71 @@ func TestLoadEnvironmentVariables(t *testing.T) {
 		t.Fatalf("unexpected HTTP port: %d", cfg.HTTP.Port)
 	}
 
-	if cfg.Database.URL != "postgres://test" {
+	if cfg.Database.URL != "postgres://sadguru:test-password@localhost:5432/sadguru?sslmode=disable" {
 		t.Fatalf("unexpected database URL: %s", cfg.Database.URL)
 	}
 
+	if cfg.Auth.Password != "test-auth-password" {
+		t.Fatalf("unexpected auth password")
+	}
+
 	if cfg.ShutdownTimeout != 5*time.Second {
-		t.Fatalf(
-			"unexpected shutdown timeout: %v",
-			cfg.ShutdownTimeout,
-		)
+		t.Fatalf("unexpected shutdown timeout: %v", cfg.ShutdownTimeout)
+	}
+
+	if cfg.Migrations.Path != "migrations" {
+		t.Fatalf("unexpected migrations path: %s", cfg.Migrations.Path)
+	}
+}
+
+func TestLoadUsesConfigEnvironmentOverride(t *testing.T) {
+	path := writeTestConfig(t, validConfigTOML())
+
+	t.Setenv("SADGURU_CONFIG_FILE", path)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("expected configuration to load, got error: %v", err)
+	}
+
+	if cfg.HTTP.Port != 9090 {
+		t.Fatalf("expected port 9090, got %d", cfg.HTTP.Port)
+	}
+}
+
+func TestLoadRejectsMissingFile(t *testing.T) {
+	_, err := LoadFromFile("/does/not/exist/config.toml")
+
+	if err == nil {
+		t.Fatal("expected missing configuration file error")
+	}
+}
+
+func TestLoadRejectsInvalidTOML(t *testing.T) {
+	path := writeTestConfig(t, "[app\ninvalid")
+
+	_, err := LoadFromFile(path)
+
+	if err == nil {
+		t.Fatal("expected TOML parsing error")
+	}
+}
+
+func TestLoadRejectsInvalidShutdownDuration(t *testing.T) {
+	config := validConfigTOML()
+	config = strings.Replace(
+		config,
+		`timeout = "5s"`,
+		`timeout = "invalid"`,
+		1,
+	)
+
+	path := writeTestConfig(t, config)
+
+	_, err := LoadFromFile(path)
+
+	if err == nil {
+		t.Fatal("expected shutdown duration error")
 	}
 }
 
@@ -110,7 +169,7 @@ func TestValidateRejectsMissingAppName(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -130,7 +189,7 @@ func TestValidateRejectsInvalidEnvironment(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -150,7 +209,7 @@ func TestValidateRejectsInvalidLogLevel(t *testing.T) {
 		LogLevel:    "trace",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -170,7 +229,7 @@ func TestValidateRejectsInvalidHTTPPort(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -190,7 +249,7 @@ func TestValidateRequiresDatabaseInProduction(t *testing.T) {
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -204,138 +263,13 @@ func TestValidateRequiresDatabaseInProduction(t *testing.T) {
 	}
 }
 
-func TestSensitiveEnvironmentVariablesAreNotRequired(t *testing.T) {
-	t.Setenv("DATABASE_URL", "")
-	t.Setenv("REDIS_URL", "")
-	t.Setenv("STORAGE_ENDPOINT", "")
-	t.Setenv("STORAGE_BUCKET", "")
-	t.Setenv("STORAGE_ACCESS_KEY", "")
-	t.Setenv("STORAGE_SECRET_KEY", "")
-
-	cfg, err := Load()
-	if err != nil {
-		t.Fatalf(
-			"expected configuration to load without optional services, got: %v",
-			err,
-		)
-	}
-
-	if cfg.Database.URL != "" {
-		t.Fatal("expected empty database URL")
-	}
-
-	if cfg.Redis.URL != "" {
-		t.Fatal("expected empty redis URL")
-	}
-
-	if cfg.Storage.Endpoint != "" {
-		t.Fatal("expected empty storage endpoint")
-	}
-
-	if cfg.Storage.AccessKey != "" {
-		t.Fatal("expected empty storage access key")
-	}
-
-	if cfg.Storage.SecretKey != "" {
-		t.Fatal("expected empty storage secret key")
-	}
-}
-
-func TestGetIntEnv(t *testing.T) {
-	t.Setenv("TEST_PORT", "9090")
-
-	value, err := getIntEnv("TEST_PORT", 8080)
-	if err != nil {
-		t.Fatalf("expected integer to parse, got error: %v", err)
-	}
-
-	if value != 9090 {
-		t.Fatalf("expected 9090, got %d", value)
-	}
-}
-
-func TestGetIntEnvFallback(t *testing.T) {
-	t.Setenv("TEST_PORT", "")
-
-	value, err := getIntEnv("TEST_PORT", 8080)
-	if err != nil {
-		t.Fatalf("expected fallback without error, got: %v", err)
-	}
-
-	if value != 8080 {
-		t.Fatalf("expected fallback 8080, got %d", value)
-	}
-}
-
-func TestGetIntEnvRejectsInvalidValue(t *testing.T) {
-	t.Setenv("TEST_PORT", "invalid")
-
-	_, err := getIntEnv("TEST_PORT", 8080)
-	if err == nil {
-		t.Fatal("expected integer parsing error")
-	}
-}
-
-func TestGetDurationEnv(t *testing.T) {
-	t.Setenv("TEST_DURATION", "5s")
-
-	duration, err := getDurationEnv(
-		"TEST_DURATION",
-		10*time.Second,
-	)
-
-	if err != nil {
-		t.Fatalf("expected duration to parse, got error: %v", err)
-	}
-
-	if duration != 5*time.Second {
-		t.Fatalf(
-			"expected 5s, got %v",
-			duration,
-		)
-	}
-}
-
-func TestGetDurationEnvFallback(t *testing.T) {
-	t.Setenv("TEST_DURATION", "")
-
-	duration, err := getDurationEnv(
-		"TEST_DURATION",
-		10*time.Second,
-	)
-
-	if err != nil {
-		t.Fatalf("expected fallback without error, got: %v", err)
-	}
-
-	if duration != 10*time.Second {
-		t.Fatalf(
-			"expected fallback 10s, got %v",
-			duration,
-		)
-	}
-}
-
-func TestGetDurationEnvRejectsInvalidValue(t *testing.T) {
-	t.Setenv("TEST_DURATION", "invalid")
-
-	_, err := getDurationEnv(
-		"TEST_DURATION",
-		10*time.Second,
-	)
-
-	if err == nil {
-		t.Fatal("expected duration parsing error")
-	}
-}
-
 func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 	cfg := Config{
 		Environment: "development",
 		LogLevel:    "info",
 		App: AppConfig{
 			Name:    "Sadguru Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "0.0.0.0",
@@ -358,7 +292,7 @@ func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 		"secret-access-key",
 		"secret-secret-key",
 	} {
-		if contains(value, secret) {
+		if strings.Contains(value, secret) {
 			t.Fatalf("configuration string exposed secret %q", secret)
 		}
 	}
@@ -370,7 +304,7 @@ func TestConfigString(t *testing.T) {
 		LogLevel:    "debug",
 		App: AppConfig{
 			Name:    "Test Catering OS",
-			Version: "1.0.10",
+			Version: "0.4.0",
 		},
 		HTTP: HTTPConfig{
 			Host: "127.0.0.1",
@@ -379,32 +313,9 @@ func TestConfigString(t *testing.T) {
 		ShutdownTimeout: 5 * time.Second,
 	}
 
-	expected := "app=Test Catering OS version=1.0.10 env=test log_level=debug http=127.0.0.1:9090"
+	expected := "app=Test Catering OS version=0.4.0 env=test log_level=debug http=127.0.0.1:9090"
 
 	if cfg.String() != expected {
-		t.Fatalf(
-			"unexpected configuration string: %s",
-			cfg.String(),
-		)
+		t.Fatalf("unexpected configuration string: %s", cfg.String())
 	}
-}
-
-func contains(value, target string) bool {
-	return len(target) > 0 && len(value) >= len(target) &&
-		stringContains(value, target)
-}
-
-func stringContains(value, target string) bool {
-	for i := 0; i <= len(value)-len(target); i++ {
-		if value[i:i+len(target)] == target {
-			return true
-		}
-	}
-
-	return false
-}
-
-func TestSensitiveEnvironmentVariablesAreNotRequiredUsesOS(t *testing.T) {
-	_ = os.Unsetenv("DATABASE_URL")
-	_ = os.Unsetenv("REDIS_URL")
 }
