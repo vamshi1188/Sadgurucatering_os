@@ -47,4 +47,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get events => 'Events';
+
+  @override
+  String get finance => 'Finance';
+
+  @override
+  String get settings => 'Settings';
 }

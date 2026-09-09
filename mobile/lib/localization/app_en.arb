@@ -12,5 +12,9 @@
   "password": "Password",
   "enterPassword": "Enter your password",
   "login": "Login",
-  "logout": "Logout"
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "events": "Events",
+  "finance": "Finance",
+  "settings": "Settings"
 }

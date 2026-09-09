@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sadguru_catering/app/sadguru_app.dart';
 import 'package:sadguru_catering/config/app_config.dart';
-import 'package:sadguru_catering/core/network/api_client.dart';
 import 'package:sadguru_catering/config/environment.dart';
+import 'package:sadguru_catering/core/network/api_client.dart';
 import 'package:sadguru_catering/features/authentication/models/authentication_state.dart';
 
 void main() {
@@ -32,20 +32,29 @@ void main() {
 
       await tester.pump();
 
-      expect(find.text('Welcome'), findsOneWidget);
-      expect(find.text('Language'), findsOneWidget);
+      expect(find.text('Sadguru Catering OS'), findsOneWidget);
+      expect(find.text('Dashboard'), findsWidgets);
+      expect(find.text('Events'), findsWidgets);
+      expect(find.text('Finance'), findsWidgets);
+      expect(find.text('Settings'), findsWidgets);
 
       await tester.tap(find.text('తెలుగు'));
       await tester.pump();
 
-      expect(find.text('స్వాగతం'), findsOneWidget);
-      expect(find.text('భాష'), findsOneWidget);
+      expect(find.text('సద్గురు క్యాటరింగ్ OS'), findsOneWidget);
+      expect(find.text('డాష్‌బోర్డ్'), findsWidgets);
+      expect(find.text('ఈవెంట్స్'), findsWidgets);
+      expect(find.text('ఫైనాన్స్'), findsWidgets);
+      expect(find.text('సెట్టింగ్స్'), findsWidgets);
 
       await tester.tap(find.text('English'));
       await tester.pump();
 
-      expect(find.text('Welcome'), findsOneWidget);
-      expect(find.text('Language'), findsOneWidget);
+      expect(find.text('Sadguru Catering OS'), findsOneWidget);
+      expect(find.text('Dashboard'), findsWidgets);
+      expect(find.text('Events'), findsWidgets);
+      expect(find.text('Finance'), findsWidgets);
+      expect(find.text('Settings'), findsWidgets);
     },
   );
 }

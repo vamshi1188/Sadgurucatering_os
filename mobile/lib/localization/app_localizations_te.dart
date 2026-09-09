@@ -47,4 +47,16 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get logout => 'లాగ్ అవుట్';
+
+  @override
+  String get dashboard => 'డాష్‌బోర్డ్';
+
+  @override
+  String get events => 'ఈవెంట్స్';
+
+  @override
+  String get finance => 'ఫైనాన్స్';
+
+  @override
+  String get settings => 'సెట్టింగ్స్';
 }

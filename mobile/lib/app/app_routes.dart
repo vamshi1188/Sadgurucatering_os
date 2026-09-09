@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../features/authentication/controllers/authentication_controller.dart';
 import '../features/authentication/models/authentication_state.dart';
 import '../features/authentication/screens/login_screen.dart';
-import 'bootstrap_screen.dart';
+import '../features/application_shell/screens/application_shell_screen.dart';
 
 class SadguruRoutes {
   SadguruRoutes._();
@@ -56,7 +56,7 @@ class _AuthenticationGate extends StatelessWidget {
       );
     }
 
-    return BootstrapScreen(
+    return ApplicationShellScreen(
       onLocaleChanged: onLocaleChanged,
       authenticationController: controller,
     );
