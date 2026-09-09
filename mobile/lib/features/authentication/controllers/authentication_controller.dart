@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/errors/app_error.dart';
+import '../../../core/errors/error_handler.dart';
 import '../../../core/network/api_exception.dart';
 import '../models/authentication_state.dart';
 import '../services/authentication_service.dart';
@@ -13,11 +15,11 @@ class AuthenticationController extends ChangeNotifier {
   final AuthenticationService _service;
 
   AuthenticationState _state;
-  ApiException? _error;
+  AppError? _error;
   bool _isLoading = false;
 
   AuthenticationState get state => _state;
-  ApiException? get error => _error;
+  AppError? get error => _error;
   bool get isLoading => _isLoading;
 
   Future<void> checkSession() async {
@@ -49,11 +51,11 @@ class AuthenticationController extends ChangeNotifier {
     try {
       await operation();
       return true;
-    } on ApiException catch (error) {
-      _error = error;
+    } on ApiException catch (exception) {
+      _error = ErrorHandler.fromApiException(exception);
 
       if (unauthenticatedOnUnauthorized &&
-          error.code == 'UNAUTHORIZED') {
+          _error!.requiresAuthentication) {
         _state = const AuthenticationState.unauthenticated();
       }
 

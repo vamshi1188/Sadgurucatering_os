@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../core/widgets/loading_view.dart';
 import '../features/authentication/controllers/authentication_controller.dart';
 import '../features/authentication/models/authentication_state.dart';
 import '../features/authentication/screens/login_screen.dart';
 import '../features/application_shell/screens/application_shell_screen.dart';
+import '../localization/app_localizations.dart';
 
 class SadguruRoutes {
   SadguruRoutes._();
@@ -42,9 +44,9 @@ class _AuthenticationGate extends StatelessWidget {
     final state = controller.state;
 
     if (state.status == AuthenticationStatus.unknown) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return Scaffold(
+        body: LoadingView(
+          message: AppLocalizations.of(context)!.loading,
         ),
       );
     }

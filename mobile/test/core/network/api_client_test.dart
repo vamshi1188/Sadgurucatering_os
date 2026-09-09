@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,6 +39,27 @@ void main() {
           request.response.statusCode = HttpStatus.unauthorized;
           request.response.write(
             '{"error":{"code":"UNAUTHORIZED","message":"Authentication required"}}',
+          );
+
+        case '/forbidden':
+          request.response.headers.contentType = ContentType.json;
+          request.response.statusCode = HttpStatus.forbidden;
+          request.response.write(
+            '{"error":{"code":"FORBIDDEN","message":"Access denied"}}',
+          );
+
+        case '/not-found':
+          request.response.headers.contentType = ContentType.json;
+          request.response.statusCode = HttpStatus.notFound;
+          request.response.write(
+            '{"error":{"code":"NOT_FOUND","message":"Resource not found"}}',
+          );
+
+        case '/server-error':
+          request.response.headers.contentType = ContentType.json;
+          request.response.statusCode = HttpStatus.internalServerError;
+          request.response.write(
+            '{"error":{"code":"SERVER_ERROR","message":"Server failure"}}',
           );
 
         case '/invalid':
@@ -149,6 +172,75 @@ void main() {
     );
   });
 
+  test('connection failure becomes ApiException', () async {
+    await server.close(force: true);
+    final client = ApiClient(baseUrl: baseUrl);
+
+    expect(
+      () => client.get<dynamic>('/success'),
+      throwsA(
+        isA<ApiException>().having(
+          (e) => e.message,
+          'message',
+          'Unable to connect to the server',
+        ),
+      ),
+    );
+  });
+
+  test('connection timeout becomes ApiException', () async {
+    final client = _clientWithDioException(DioExceptionType.connectionTimeout);
+
+    expect(
+      () => client.get<dynamic>('/success'),
+      throwsA(
+        isA<ApiException>().having(
+          (e) => e.message,
+          'message',
+          'The request timed out',
+        ),
+      ),
+    );
+  });
+
+  test('receive timeout becomes ApiException', () async {
+    final client = _clientWithDioException(DioExceptionType.receiveTimeout);
+
+    expect(
+      () => client.get<dynamic>('/success'),
+      throwsA(
+        isA<ApiException>().having(
+          (e) => e.message,
+          'message',
+          'The request timed out',
+        ),
+      ),
+    );
+  });
+
+  test('preserves API error details for common HTTP failures', () async {
+    final client = ApiClient(baseUrl: baseUrl);
+
+    final cases = <String, List<Object>>{
+      '/error': [HttpStatus.unauthorized, 'UNAUTHORIZED', 'Authentication required'],
+      '/forbidden': [HttpStatus.forbidden, 'FORBIDDEN', 'Access denied'],
+      '/not-found': [HttpStatus.notFound, 'NOT_FOUND', 'Resource not found'],
+      '/server-error': [HttpStatus.internalServerError, 'SERVER_ERROR', 'Server failure'],
+    };
+
+    for (final entry in cases.entries) {
+      expect(
+        () => client.get<dynamic>(entry.key),
+        throwsA(
+          isA<ApiException>()
+              .having((e) => e.statusCode, 'statusCode', entry.value[0])
+              .having((e) => e.code, 'code', entry.value[1])
+              .having((e) => e.message, 'message', entry.value[2]),
+        ),
+      );
+    }
+  });
+
   test('persists session cookie between requests', () async {
     final client = ApiClient(baseUrl: baseUrl, cookieJar: CookieJar());
 
@@ -166,4 +258,31 @@ void main() {
 
     expect(sessionResponse.data['cookie_received'], true);
   });
+}
+
+ApiClient _clientWithDioException(DioExceptionType type) {
+  final dio = Dio(BaseOptions(baseUrl: 'http://test.invalid'));
+  dio.httpClientAdapter = _ThrowingAdapter(type);
+  return ApiClient(baseUrl: 'http://test.invalid', dio: dio);
+}
+
+class _ThrowingAdapter implements HttpClientAdapter {
+  _ThrowingAdapter(this.type);
+
+  final DioExceptionType type;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    throw DioException(
+      requestOptions: options,
+      type: type,
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
 }

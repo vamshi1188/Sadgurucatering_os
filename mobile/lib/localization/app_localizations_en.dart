@@ -59,4 +59,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings => 'Settings';
+
+  @override
+  String get networkError =>
+      'We couldn\'t connect to the server. Check your connection and try again.';
+
+  @override
+  String get timeoutError => 'The request took too long. Please try again.';
+
+  @override
+  String get unauthorizedError =>
+      'Your session has expired. Please sign in again.';
+
+  @override
+  String get forbiddenError =>
+      'You don\'t have permission to perform this action.';
+
+  @override
+  String get notFoundError => 'The requested resource was not found.';
+
+  @override
+  String get validationError => 'Please check your input and try again.';
+
+  @override
+  String get serverError =>
+      'The server is temporarily unavailable. Please try again.';
+
+  @override
+  String get unknownError => 'Something went wrong. Please try again.';
 }

@@ -199,6 +199,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t connect to the server. Check your connection and try again.'**
+  String get networkError;
+
+  /// No description provided for @timeoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'The request took too long. Please try again.'**
+  String get timeoutError;
+
+  /// No description provided for @unauthorizedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in again.'**
+  String get unauthorizedError;
+
+  /// No description provided for @forbiddenError.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to perform this action.'**
+  String get forbiddenError;
+
+  /// No description provided for @notFoundError.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested resource was not found.'**
+  String get notFoundError;
+
+  /// No description provided for @validationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your input and try again.'**
+  String get validationError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'The server is temporarily unavailable. Please try again.'**
+  String get serverError;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get unknownError;
 }
 
 class _AppLocalizationsDelegate

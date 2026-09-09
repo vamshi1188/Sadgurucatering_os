@@ -59,4 +59,33 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get settings => 'సెట్టింగ్స్';
+
+  @override
+  String get networkError =>
+      'సర్వర్‌కు కనెక్ట్ కాలేకపోయాం. మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get timeoutError =>
+      'అభ్యర్థనకు ఎక్కువ సమయం పట్టింది. మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get unauthorizedError =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ సైన్ ఇన్ చేయండి.';
+
+  @override
+  String get forbiddenError => 'ఈ చర్యను చేయడానికి మీకు అనుమతి లేదు.';
+
+  @override
+  String get notFoundError => 'అభ్యర్థించిన వనరు కనుగొనబడలేదు.';
+
+  @override
+  String get validationError =>
+      'మీ ఇన్‌పుట్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get serverError =>
+      'సర్వర్ తాత్కాలికంగా అందుబాటులో లేదు. మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get unknownError => 'ఏదో తప్పు జరిగింది. మళ్లీ ప్రయత్నించండి.';
 }

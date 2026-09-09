@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/network/api_exception.dart';
+import '../../../core/errors/app_error_localization.dart';
+import '../../../core/widgets/error_view.dart';
 import '../../../localization/app_localizations.dart';
 import '../controllers/authentication_controller.dart';
 
@@ -99,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _login(),
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: localization.password,
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           onPressed: () {
@@ -116,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Enter your password';
+                          return localization.enterPassword;
                         }
 
                         return null;
@@ -124,7 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     if (error != null) ...[
-                      _LoginError(error: error),
+                      ErrorView(
+                        message: localizedAppErrorMessage(localization, error),
+                        retryLabel: localization.retry,
+                        onRetry: error.retryable ? _login : null,
+                      ),
                       const SizedBox(height: 16),
                     ],
                     FilledButton(
@@ -138,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text('Login'),
+                          : Text(localization.login),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -175,23 +180,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _LoginError extends StatelessWidget {
-  const _LoginError({required this.error});
-
-  final ApiException error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      error.message,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.error,
       ),
     );
   }
