@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
-    this.controller,
-    this.labelText,
-    this.hintText,
+    required this.controller,
+    this.label,
+    this.hint,
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
@@ -14,9 +14,9 @@ class AppTextField extends StatelessWidget {
     this.enabled = true,
   });
 
-  final TextEditingController? controller;
-  final String? labelText;
-  final String? hintText;
+  final TextEditingController controller;
+  final String? label;
+  final String? hint;
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
@@ -28,13 +28,16 @@ class AppTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      enabled: enabled,
       obscureText: obscureText,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       validator: validator,
       onChanged: onChanged,
-      decoration: InputDecoration(labelText: labelText, hintText: hintText),
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+      ),
     );
   }
 }
