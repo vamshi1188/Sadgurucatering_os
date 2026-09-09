@@ -8,5 +8,9 @@
   "language": "Language",
   "retry": "Retry",
   "loading": "Loading",
-  "noData": "No data available"
+  "noData": "No data available",
+  "password": "Password",
+  "enterPassword": "Enter your password",
+  "login": "Login",
+  "logout": "Logout"
 }

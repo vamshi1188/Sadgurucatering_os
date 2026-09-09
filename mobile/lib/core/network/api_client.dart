@@ -4,6 +4,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 import 'api_exception.dart';
 import 'api_response.dart';
+import 'persistent_cookie_storage.dart';
 
 class ApiClient {
   ApiClient({
@@ -27,6 +28,28 @@ class ApiClient {
            ) {
     _cookieJar = cookieJar ?? CookieJar();
     _dio.interceptors.add(CookieManager(_cookieJar));
+  }
+
+  static Future<ApiClient> create({
+    required String baseUrl,
+    Dio? dio,
+    CookieJar? cookieJar,
+    PersistentCookieStorage? cookieStorage,
+    Duration connectTimeout = const Duration(seconds: 10),
+    Duration receiveTimeout = const Duration(seconds: 15),
+  }) async {
+    final resolvedCookieJar =
+        cookieJar ??
+        await (cookieStorage ?? const PersistentCookieStorage())
+            .createCookieJar();
+
+    return ApiClient(
+      baseUrl: baseUrl,
+      dio: dio,
+      cookieJar: resolvedCookieJar,
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+    );
   }
 
   final Dio _dio;

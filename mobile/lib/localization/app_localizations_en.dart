@@ -35,4 +35,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noData => 'No data available';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get enterPassword => 'Enter your password';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get logout => 'Logout';
 }

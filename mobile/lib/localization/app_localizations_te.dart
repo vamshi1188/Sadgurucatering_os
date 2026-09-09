@@ -35,4 +35,16 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get noData => 'డేటా అందుబాటులో లేదు';
+
+  @override
+  String get password => 'పాస్‌వర్డ్';
+
+  @override
+  String get enterPassword => 'మీ పాస్‌వర్డ్ నమోదు చేయండి';
+
+  @override
+  String get login => 'లాగిన్';
+
+  @override
+  String get logout => 'లాగ్ అవుట్';
 }

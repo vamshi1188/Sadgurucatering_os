@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../features/authentication/controllers/authentication_controller.dart';
 import '../localization/app_localizations.dart';
 
 class BootstrapScreen extends StatelessWidget {
-  const BootstrapScreen({super.key, required this.onLocaleChanged});
+  const BootstrapScreen({
+    super.key,
+    required this.onLocaleChanged,
+    required this.authenticationController,
+  });
 
   final ValueChanged<Locale> onLocaleChanged;
+  final AuthenticationController authenticationController;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +20,17 @@ class BootstrapScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(localization.appName),
+        actions: [
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: authenticationController.isLoading
+                ? null
+                : () async {
+                    await authenticationController.logout();
+                  },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(
