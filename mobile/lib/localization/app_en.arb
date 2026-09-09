@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appName": "Sadguru Catering OS",
+  "welcome": "Welcome",
+  "home": "Home",
+  "english": "English",
+  "telugu": "Telugu",
+  "language": "Language",
+  "retry": "Retry",
+  "loading": "Loading",
+  "noData": "No data available"
+}
