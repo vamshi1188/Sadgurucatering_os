@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupEventsByDate } from "./EventsPage";
+import { groupEventsByDate } from "./groupEventsByDate";
 
 const event = (id: number, event_date: string) => ({ id, event_date, title: `Event ${id}` } as never);
 
