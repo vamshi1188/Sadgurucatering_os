@@ -2,7 +2,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DashboardPage, rangeFor } from "./pages";
+import { DashboardPage } from "./pages";
+import { rangeFor } from "./rangeFor";
 import { getDashboardSummary } from "../api/dashboard";
 
 vi.mock("../api/dashboard", () => ({

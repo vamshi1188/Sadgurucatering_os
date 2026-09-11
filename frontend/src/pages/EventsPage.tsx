@@ -16,6 +16,7 @@ import {
   getEventFinancials,
   type EventFinancials,
 } from "../api/finance";
+import { groupEventsByDate } from "./groupEventsByDate";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -23,14 +24,6 @@ import { Input } from "../components/ui/Input";
 
 type Filter = "all" | EventStatus;
 type FinanceEntryType = "income" | "expense";
-
-export function groupEventsByDate(events: CateringEvent[]) {
-  return events.reduce<Record<string, CateringEvent[]>>((groups, event) => {
-    groups[event.event_date] ??= [];
-    groups[event.event_date].push(event);
-    return groups;
-  }, {});
-}
 
 function localDateKey(date = new Date()) {
   const year = date.getFullYear();
