@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/network/api_client.dart';
 import 'package:sadguru_catering/features/authentication/controllers/authentication_controller.dart';
 import 'package:sadguru_catering/localization/app_localizations.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
+import '../../dashboard/services/dashboard_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
-import 'dashboard_placeholder_screen.dart';
 import 'events_placeholder_screen.dart';
 import 'finance_placeholder_screen.dart';
 import 'settings_placeholder_screen.dart';
@@ -13,11 +16,13 @@ class ApplicationShellScreen extends StatefulWidget {
   const ApplicationShellScreen({
     required this.authenticationController,
     required this.onLocaleChanged,
+    required this.apiClient,
     super.key,
   });
 
   final AuthenticationController authenticationController;
   final ValueChanged<Locale> onLocaleChanged;
+  final ApiClient apiClient;
 
   @override
   State<ApplicationShellScreen> createState() =>
@@ -26,6 +31,15 @@ class ApplicationShellScreen extends StatefulWidget {
 
 class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   ApplicationTab _currentTab = ApplicationTab.dashboard;
+  late final DashboardController _dashboardController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardController = DashboardController(
+      DashboardService(widget.apiClient),
+    );
+  }
 
   void _selectTab(ApplicationTab tab) {
     if (_currentTab == tab) {
@@ -53,7 +67,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   Widget _buildCurrentScreen() {
     switch (_currentTab) {
       case ApplicationTab.dashboard:
-        return const DashboardPlaceholderScreen();
+        return DashboardScreen(controller: _dashboardController);
       case ApplicationTab.events:
         return const EventsPlaceholderScreen();
       case ApplicationTab.finance:
@@ -61,6 +75,12 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
       case ApplicationTab.settings:
         return const SettingsPlaceholderScreen();
     }
+  }
+
+  @override
+  void dispose() {
+    _dashboardController.dispose();
+    super.dispose();
   }
 
   @override

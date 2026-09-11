@@ -87,4 +87,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownError => 'Something went wrong. Please try again.';
+
+  @override
+  String get totalEvents => 'Total Events';
+
+  @override
+  String get upcoming => 'Upcoming';
+
+  @override
+  String get running => 'Running';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get totalIncome => 'Total Income';
+
+  @override
+  String get totalExpenses => 'Total Expenses';
+
+  @override
+  String get profit => 'Profit';
+
+  @override
+  String get eventsList => 'Events';
+
+  @override
+  String get noEvents => 'No events available';
+
+  @override
+  String get guests => 'Guests';
+
+  @override
+  String get venue => 'Venue';
+
+  @override
+  String get income => 'Income';
+
+  @override
+  String get expenses => 'Expenses';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get tomorrow => 'Tomorrow';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get thisYear => 'This Year';
+
+  @override
+  String get upcomingEvents => 'Upcoming Events';
+
+  @override
+  String get financialPerformance => 'Financial Performance';
+
+  @override
+  String get todaysOverview => 'Today\'s Overview';
 }

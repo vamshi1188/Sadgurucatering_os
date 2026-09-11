@@ -88,4 +88,70 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get unknownError => 'ఏదో తప్పు జరిగింది. మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get totalEvents => 'మొత్తం ఈవెంట్లు';
+
+  @override
+  String get upcoming => 'రాబోయేవి';
+
+  @override
+  String get running => 'జరుగుతున్నవి';
+
+  @override
+  String get completed => 'పూర్తయినవి';
+
+  @override
+  String get totalIncome => 'మొత్తం ఆదాయం';
+
+  @override
+  String get totalExpenses => 'మొత్తం ఖర్చులు';
+
+  @override
+  String get profit => 'లాభం';
+
+  @override
+  String get eventsList => 'ఈవెంట్లు';
+
+  @override
+  String get noEvents => 'ఈవెంట్లు అందుబాటులో లేవు';
+
+  @override
+  String get guests => 'అతిథులు';
+
+  @override
+  String get venue => 'వేదిక';
+
+  @override
+  String get income => 'ఆదాయం';
+
+  @override
+  String get expenses => 'ఖర్చులు';
+
+  @override
+  String get status => 'స్థితి';
+
+  @override
+  String get today => 'ఈ రోజు';
+
+  @override
+  String get tomorrow => 'రేపు';
+
+  @override
+  String get thisWeek => 'ఈ వారం';
+
+  @override
+  String get thisMonth => 'ఈ నెల';
+
+  @override
+  String get thisYear => 'ఈ సంవత్సరం';
+
+  @override
+  String get upcomingEvents => 'రాబోయే ఈవెంట్లు';
+
+  @override
+  String get financialPerformance => 'ఆర్థిక పనితీరు';
+
+  @override
+  String get todaysOverview => 'ఈ రోజు అవలోకనం';
 }

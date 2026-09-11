@@ -1,11 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sadguru_catering/app/sadguru_app.dart';
 import 'package:sadguru_catering/config/app_config.dart';
 import 'package:sadguru_catering/config/environment.dart';
-import 'package:sadguru_catering/core/network/api_client.dart';
 import 'package:sadguru_catering/features/authentication/models/authentication_state.dart';
+
+import '../support/test_api_client.dart';
 
 void main() {
   testWidgets(
@@ -13,13 +13,10 @@ void main() {
     (tester) async {
       const config = AppConfig(
         environment: AppEnvironment.development,
-        apiBaseUrl: 'http://localhost:3000/api/v1',
+        apiBaseUrl: 'http://127.0.0.1:1/api/v1',
       );
 
-      final apiClient = ApiClient(
-        baseUrl: config.apiBaseUrl,
-        dio: Dio(),
-      );
+      final apiClient = createTestApiClient();
 
       await tester.pumpWidget(
         SadguruApp(
@@ -30,7 +27,7 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Sadguru Catering OS'), findsOneWidget);
       expect(find.text('Dashboard'), findsWidgets);
