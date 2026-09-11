@@ -1,0 +1,28 @@
+{
+  "@@locale": "en",
+  "appName": "Sadguru Catering OS",
+  "welcome": "Welcome",
+  "home": "Home",
+  "english": "English",
+  "telugu": "Telugu",
+  "language": "Language",
+  "retry": "Retry",
+  "loading": "Loading",
+  "noData": "No data available",
+  "password": "Password",
+  "enterPassword": "Enter your password",
+  "login": "Login",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "events": "Events",
+  "finance": "Finance",
+  "settings": "Settings"
+  ,"networkError": "We couldn't connect to the server. Check your connection and try again."
+  ,"timeoutError": "The request took too long. Please try again."
+  ,"unauthorizedError": "Your session has expired. Please sign in again."
+  ,"forbiddenError": "You don't have permission to perform this action."
+  ,"notFoundError": "The requested resource was not found."
+  ,"validationError": "Please check your input and try again."
+  ,"serverError": "The server is temporarily unavailable. Please try again."
+  ,"unknownError": "Something went wrong. Please try again."
+}

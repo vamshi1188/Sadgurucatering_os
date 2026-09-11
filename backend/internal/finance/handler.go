@@ -37,6 +37,19 @@ func eventIDFromPath(path string, suffix string) (int64, bool) {
 	return id, err == nil && id > 0
 }
 
+func expenseIDsFromPath(path string) (int64, int64, bool) {
+	const prefix = "/api/v1/events/"
+	value := strings.TrimPrefix(path, prefix)
+	parts := strings.Split(value, "/")
+	if len(parts) != 3 || parts[0] == "" || parts[1] != "expenses" || parts[2] == "" {
+		return 0, 0, false
+	}
+
+	eventID, eventErr := strconv.ParseInt(parts[0], 10, 64)
+	entryID, entryErr := strconv.ParseInt(parts[2], 10, 64)
+	return eventID, entryID, eventErr == nil && entryErr == nil && eventID > 0 && entryID > 0
+}
+
 func decodeEntryRequest(w http.ResponseWriter, r *http.Request) (entryRequest, bool) {
 	r.Body = http.MaxBytesReader(w, r.Body, 4096)
 
@@ -121,6 +134,31 @@ func (h *Handler) AddExpense(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Write(w, http.StatusCreated, entry, "")
+}
+
+func (h *Handler) DeleteExpense(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		response.WriteError(w, appErrors.NotFoundError("Resource not found"))
+		return
+	}
+
+	eventID, entryID, ok := expenseIDsFromPath(r.URL.Path)
+	if !ok {
+		response.WriteError(w, appErrors.NotFoundError("Expense not found"))
+		return
+	}
+
+	err := h.service.DeleteExpense(r.Context(), eventID, entryID)
+	if err == ErrEntryNotFound {
+		response.WriteError(w, appErrors.NotFoundError("Expense not found"))
+		return
+	}
+	if err != nil {
+		response.WriteError(w, appErrors.InternalError("Unable to delete expense"))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) GetFinancials(w http.ResponseWriter, r *http.Request) {

@@ -11,6 +11,7 @@ import (
 
 var (
 	ErrNotFound      = errors.New("event not found")
+	ErrEntryNotFound = errors.New("finance entry not found")
 	ErrInvalidAmount = errors.New("amount must be greater than zero")
 	ErrInvalidInput  = errors.New("invalid finance input")
 	amountPattern    = regexp.MustCompile(`^(?:0*[1-9]\d*)(?:\.\d{1,2})?$`)
@@ -140,6 +141,28 @@ func (r *Repository) AddExpense(
 	)
 
 	return entry, err
+}
+
+func (r *Repository) DeleteExpense(ctx context.Context, eventID int64, entryID int64) error {
+	result, err := r.db.ExecContext(
+		ctx,
+		`DELETE FROM event_expenses WHERE id = $1 AND event_id = $2`,
+		entryID,
+		eventID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrEntryNotFound
+	}
+
+	return nil
 }
 
 func (r *Repository) GetFinancials(

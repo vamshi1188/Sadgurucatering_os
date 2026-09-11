@@ -1,0 +1,573 @@
+SADGURU CATERING OS BACKEND API
+================================
+
+Base URL
+--------
+/api/v1
+
+The API is served by the backend HTTP server. In local development the full
+base URL is commonly:
+
+http://localhost:8080/api/v1
+
+All successful JSON responses use this envelope:
+
+{
+  "data": <response data>
+}
+
+Errors use this envelope:
+
+{
+  "error": {
+    "code": "<error code>",
+    "message": "<human-readable message>"
+  }
+}
+
+Authentication
+--------------
+
+The login endpoint creates an HTTP-only cookie named sadguru_session. Send this
+cookie with every protected request. The frontend uses credentials: include.
+
+The cookie is valid for 24 hours. Authentication is session-cookie based; this
+API does not use a bearer token.
+
+For curl, preserve the cookie between requests:
+
+curl -i -c cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"password":"YOUR_PASSWORD"}' \
+  http://localhost:8080/api/v1/auth/login
+
+curl -i -b cookies.txt http://localhost:8080/api/v1/events
+
+
+1. HEALTH
+---------
+
+GET /api/v1/health
+
+Authentication: Not required.
+
+Usage:
+
+curl http://localhost:8080/api/v1/health
+
+Success: 200 OK
+
+{
+  "data": {
+    "status": "ok"
+  }
+}
+
+
+2. AUTHENTICATION
+-----------------
+
+POST /api/v1/auth/login
+
+Authentication: Not required.
+
+Request body:
+
+{
+  "password": "YOUR_PASSWORD"
+}
+
+Usage:
+
+curl -i -c cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"password":"YOUR_PASSWORD"}' \
+  http://localhost:8080/api/v1/auth/login
+
+Success: 200 OK
+The response also sets the sadguru_session cookie.
+
+{
+  "data": {
+    "authenticated": true
+  }
+}
+
+Possible errors:
+- 400: invalid or unreadable request body
+- 401: invalid password
+- 500: authentication is not configured or a session cannot be created
+
+
+GET /api/v1/auth/session
+
+Authentication: Required.
+
+Usage:
+
+curl -i -b cookies.txt http://localhost:8080/api/v1/auth/session
+
+Success: 200 OK
+
+{
+  "data": {
+    "authenticated": true
+  }
+}
+
+Possible errors:
+- 401: authentication required or session is invalid
+
+
+POST /api/v1/auth/logout
+
+Authentication: Not required. The endpoint clears the session cookie.
+
+Usage:
+
+curl -i -b cookies.txt -X POST http://localhost:8080/api/v1/auth/logout
+
+Success: 200 OK
+
+{
+  "data": {
+    "authenticated": false
+  }
+}
+
+
+3. EVENTS
+---------
+
+Event statuses are:
+- upcoming
+- running
+- completed
+
+The normal lifecycle is:
+upcoming -> running -> completed
+
+POST /api/v1/events
+
+Authentication: Required.
+
+Creates an event. The status is normally initialized by the backend as
+upcoming. The service only permits valid event status values.
+
+Request body:
+
+{
+  "title": "Wedding Reception",
+  "event_date": "2026-09-05",
+  "venue": "Sadguru Function Hall",
+  "guest_count": 500
+}
+
+Usage:
+
+curl -i -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title":"Wedding Reception",
+    "event_date":"2026-09-05",
+    "venue":"Sadguru Function Hall",
+    "guest_count":500
+  }' \
+  http://localhost:8080/api/v1/events
+
+Success: 201 Created
+
+{
+  "data": {
+    "id": 1,
+    "title": "Wedding Reception",
+    "event_date": "2026-09-05",
+    "venue": "Sadguru Function Hall",
+    "guest_count": 500,
+    "status": "upcoming",
+    "created_at": "2026-09-03T10:00:00Z",
+    "updated_at": "2026-09-03T10:00:00Z"
+  }
+}
+
+Possible errors:
+- 400: invalid request body or event fields
+- 401: authentication required
+
+
+GET /api/v1/events
+
+Authentication: Required.
+
+Returns all events ordered by event date ascending and ID ascending.
+
+Usage:
+
+curl -i -b cookies.txt http://localhost:8080/api/v1/events
+
+Success: 200 OK
+
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Wedding Reception",
+      "event_date": "2026-09-05",
+      "venue": "Sadguru Function Hall",
+      "guest_count": 500,
+      "status": "upcoming",
+      "created_at": "2026-09-03T10:00:00Z",
+      "updated_at": "2026-09-03T10:00:00Z"
+    }
+  ]
+}
+
+Possible errors:
+- 401: authentication required
+- 500: unable to list events
+
+
+GET /api/v1/events/{id}
+
+Authentication: Required.
+
+Returns one event by its positive integer ID.
+
+Usage:
+
+curl -i -b cookies.txt http://localhost:8080/api/v1/events/1
+
+Success: 200 OK
+The response data is one event object with the same fields as the event list.
+
+Possible errors:
+- 401: authentication required
+- 404: event not found or invalid event ID
+- 500: unable to retrieve event
+
+
+DELETE /api/v1/events/{id}
+
+Authentication: Required.
+
+Deletes an event and its associated income and expense entries.
+
+Usage:
+
+curl -i -b cookies.txt \
+  -X DELETE \
+  http://localhost:8080/api/v1/events/1
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: event not found or invalid event ID
+- 500: unable to delete event
+
+
+PATCH /api/v1/events/{id}/status
+
+Authentication: Required.
+
+Changes an event status. The request body must contain the target status.
+
+Request body:
+
+{
+  "status": "running"
+}
+
+Usage:
+
+curl -i -b cookies.txt \
+  -X PATCH \
+  -H "Content-Type: application/json" \
+  -d '{"status":"running"}' \
+  http://localhost:8080/api/v1/events/1/status
+
+Success: 200 OK
+Returns the updated event object.
+
+Allowed transitions:
+- upcoming -> running
+- running -> completed
+
+Completed events are immutable in the basic MVP flow. Reverse transitions and
+upcoming -> completed are rejected.
+
+Possible errors:
+- 400: invalid body, status, or status transition
+- 401: authentication required
+- 404: event not found or invalid event ID
+
+
+4. EVENT FINANCE
+----------------
+
+Money amounts are stored and returned as decimal strings. Do not calculate
+business totals with JavaScript floating-point values. The backend calculates
+income, expenses, and profit from PostgreSQL NUMERIC values.
+
+POST /api/v1/events/{id}/income
+
+Authentication: Required.
+
+Adds one income entry to an event. Multiple entries are supported.
+
+Request body:
+
+{
+  "description": "Catering advance",
+  "amount": "50000.00"
+}
+
+Usage:
+
+curl -i -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"description":"Catering advance","amount":"50000.00"}' \
+  http://localhost:8080/api/v1/events/1/income
+
+Success: 201 Created
+
+{
+  "data": {
+    "id": 10,
+    "event_id": 1,
+    "description": "Catering advance",
+    "amount": "50000.00",
+    "created_at": "2026-09-03 10:15:00+00"
+  }
+}
+
+Validation:
+- description is required and may be at most 255 characters
+- amount must be greater than zero
+- amount may contain at most two decimal places
+
+Possible errors:
+- 400: invalid description or amount
+- 401: authentication required
+- 404: event not found
+
+
+POST /api/v1/events/{id}/expenses
+
+Authentication: Required.
+
+Adds one expense entry to an event. Multiple entries are supported.
+
+Request body:
+
+{
+  "description": "Food supplies",
+  "amount": "20000.00"
+}
+
+Usage:
+
+curl -i -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"description":"Food supplies","amount":"20000.00"}' \
+  http://localhost:8080/api/v1/events/1/expenses
+
+Success: 201 Created
+Returns an entry object with id, event_id, description, amount, and created_at.
+
+Possible errors:
+- 400: invalid description or amount
+- 401: authentication required
+- 404: event not found
+
+
+DELETE /api/v1/events/{event_id}/expenses/{expense_id}
+
+Authentication: Required.
+
+Deletes one expense entry belonging to the specified event.
+
+Usage:
+
+curl -i -b cookies.txt \
+  -X DELETE \
+  http://localhost:8080/api/v1/events/1/expenses/10
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: expense not found or not associated with the event
+- 500: unable to delete expense
+
+
+GET /api/v1/events/{id}/financials
+
+Authentication: Required.
+
+Returns the event's aggregated financials and all income and expense entries.
+
+Usage:
+
+curl -i -b cookies.txt http://localhost:8080/api/v1/events/1/financials
+
+Success: 200 OK
+
+{
+  "data": {
+    "event_id": 1,
+    "total_income": "85000.00",
+    "total_expenses": "31000.00",
+    "profit": "54000.00",
+    "income": [
+      {
+        "id": 10,
+        "event_id": 1,
+        "description": "Catering advance",
+        "amount": "50000.00",
+        "created_at": "2026-09-03 10:15:00+00"
+      }
+    ],
+    "expenses": [
+      {
+        "id": 20,
+        "event_id": 1,
+        "description": "Food supplies",
+        "amount": "20000.00",
+        "created_at": "2026-09-03 10:20:00+00"
+      }
+    ]
+  }
+}
+
+Empty income or expense collections are returned as [] rather than null.
+
+Possible errors:
+- 401: authentication required
+- 404: event not found
+- 500: unable to retrieve event financials
+
+
+5. DASHBOARD REPORTING
+----------------------
+
+GET /api/v1/dashboard/summary
+
+Authentication: Required.
+
+Returns reporting totals calculated directly from PostgreSQL, plus the
+individual events in the requested inclusive date range. Events are not merged;
+each event keeps its own financial totals for drill-down.
+
+Query parameters:
+- from: inclusive date in YYYY-MM-DD format
+- to: inclusive date in YYYY-MM-DD format
+
+If both parameters are omitted, the current date is used. If only from is
+provided, to defaults to the same date.
+
+Usage for today:
+
+curl -i -b cookies.txt \
+  "http://localhost:8080/api/v1/dashboard/summary?from=2026-09-03&to=2026-09-03"
+
+Usage for a date range:
+
+curl -i -b cookies.txt \
+  "http://localhost:8080/api/v1/dashboard/summary?from=2026-09-01&to=2026-09-30"
+
+Success: 200 OK
+
+{
+  "data": {
+    "from": "2026-09-01",
+    "to": "2026-09-30",
+    "event_count": 2,
+    "upcoming_count": 1,
+    "running_count": 1,
+    "completed_count": 0,
+    "total_income": "70000.00",
+    "total_expenses": "25000.00",
+    "profit": "45000.00",
+    "events": [
+      {
+        "id": 1,
+        "title": "Event A",
+        "event_date": "2026-09-05",
+        "venue": "Hall A",
+        "guest_count": 500,
+        "status": "upcoming",
+        "total_income": "50000.00",
+        "total_expenses": "18000.00",
+        "profit": "32000.00"
+      },
+      {
+        "id": 2,
+        "title": "Event B",
+        "event_date": "2026-09-06",
+        "venue": "Hall B",
+        "guest_count": 150,
+        "status": "running",
+        "total_income": "20000.00",
+        "total_expenses": "7000.00",
+        "profit": "13000.00"
+      }
+    ]
+  }
+}
+
+Date filtering is inclusive:
+event_date >= from AND event_date <= to
+
+Possible errors:
+- 400: invalid date or from date after to date
+- 401: authentication required
+- 500: unable to retrieve dashboard summary
+
+
+Common HTTP status codes
+------------------------
+
+200 OK       Request completed successfully.
+201 Created  Resource or finance entry created.
+400 Bad Request
+             Request body or query parameters are invalid.
+401 Unauthorized
+             Authentication is missing or invalid.
+404 Not Found
+             Resource or event does not exist.
+500 Internal Server Error
+             The backend could not complete the operation.
+
+
+Backend implementation map
+--------------------------
+
+Router registration:
+  internal/router/router.go
+
+Application wiring:
+  internal/app/app.go
+
+Authentication:
+  internal/auth/auth.go
+
+Events:
+  internal/events/event.go
+  internal/events/service.go
+  internal/events/handler.go
+  internal/events/repository.go
+
+Finance:
+  internal/finance/finance.go
+  internal/finance/service.go
+  internal/finance/handler.go
+
+Dashboard reporting:
+  internal/dashboard/dashboard.go
+  internal/dashboard/service.go
+  internal/dashboard/handler.go
+
+Response and errors:
+  internal/response/response.go
+  internal/errors/errors.go

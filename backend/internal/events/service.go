@@ -119,6 +119,14 @@ func (s *Service) UpdateStatus(
 	return s.repository.UpdateStatus(ctx, id, status)
 }
 
+func (s *Service) Delete(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return fmt.Errorf("event id must be greater than zero")
+	}
+
+	return s.repository.Delete(ctx, id)
+}
+
 func validStatusTransition(
 	from Status,
 	to Status,

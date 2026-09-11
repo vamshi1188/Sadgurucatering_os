@@ -9,6 +9,7 @@ import (
 
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/auth"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
+	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
 
 	appErrors "github.com/vamshi1188/Sadgurucatering_os/backend/internal/errors"
 )
@@ -341,5 +342,35 @@ func TestEventsUpdateStatusDynamicPatchRoute(t *testing.T) {
 			http.StatusUnauthorized,
 			rec.Code,
 		)
+	}
+}
+
+func TestDeleteRoutesRequireAuthentication(t *testing.T) {
+	authHandler := auth.New(auth.Config{
+		Password: "test-password",
+		Secret:   "test-session-secret",
+		Secure:   false,
+	})
+
+	eventsHandler := events.NewHandler(nil)
+	financeHandler := finance.NewHandler(nil)
+	handler := NewWithFinance(authHandler, eventsHandler, financeHandler)
+
+	tests := []string{
+		"/api/v1/events/123",
+		"/api/v1/events/123/expenses/456",
+	}
+
+	for _, path := range tests {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodDelete, path, nil)
+			rec := httptest.NewRecorder()
+
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusUnauthorized {
+				t.Fatalf("expected status %d, got %d", http.StatusUnauthorized, rec.Code)
+			}
+		})
 	}
 }

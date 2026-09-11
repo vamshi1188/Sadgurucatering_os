@@ -1157,6 +1157,16 @@ a {
   gap: 8px;
 }
 
+.event-delete-button {
+  background: transparent;
+  color: var(--danger);
+  border-color: rgba(174, 67, 57, 0.35);
+}
+
+.event-delete-button:hover:not(:disabled) {
+  background: rgba(174, 67, 57, 0.08);
+}
+
 /* Modal */
 
 .modal-backdrop {
@@ -1369,6 +1379,21 @@ a {
 .finance-entry strong {
   flex: 0 0 auto;
   font-size: 12px;
+}
+
+.finance-entry-value {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.finance-delete-button {
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  line-height: 1;
 }
 
 .finance-empty {
