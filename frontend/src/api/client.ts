@@ -36,6 +36,10 @@ async function request<T>(
     throw new ApiError(response.status, message);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return (await response.json()) as T;
 }
 
@@ -56,5 +60,9 @@ export const apiClient = {
       method: "PATCH",
       body: JSON.stringify(body),
     });
+  },
+
+  delete<T = void>(path: string) {
+    return request<T>(path, { method: "DELETE" });
   },
 };

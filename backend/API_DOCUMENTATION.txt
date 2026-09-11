@@ -246,6 +246,26 @@ Possible errors:
 - 500: unable to retrieve event
 
 
+DELETE /api/v1/events/{id}
+
+Authentication: Required.
+
+Deletes an event and its associated income and expense entries.
+
+Usage:
+
+curl -i -b cookies.txt \
+  -X DELETE \
+  http://localhost:8080/api/v1/events/1
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: event not found or invalid event ID
+- 500: unable to delete event
+
+
 PATCH /api/v1/events/{id}/status
 
 Authentication: Required.
@@ -359,6 +379,26 @@ Possible errors:
 - 400: invalid description or amount
 - 401: authentication required
 - 404: event not found
+
+
+DELETE /api/v1/events/{event_id}/expenses/{expense_id}
+
+Authentication: Required.
+
+Deletes one expense entry belonging to the specified event.
+
+Usage:
+
+curl -i -b cookies.txt \
+  -X DELETE \
+  http://localhost:8080/api/v1/events/1/expenses/10
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: expense not found or not associated with the event
+- 500: unable to delete expense
 
 
 GET /api/v1/events/{id}/financials

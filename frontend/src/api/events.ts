@@ -47,3 +47,7 @@ export function updateEventStatus(
     { status },
   );
 }
+
+export function deleteEvent(id: number) {
+  return apiClient.delete(`/events/${id}`);
+}

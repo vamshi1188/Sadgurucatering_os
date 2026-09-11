@@ -52,3 +52,7 @@ export function addEventExpense(
     input,
   );
 }
+
+export function deleteEventExpense(eventId: number, entryId: number) {
+  return apiClient.delete(`/events/${eventId}/expenses/${entryId}`);
+}

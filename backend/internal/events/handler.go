@@ -154,6 +154,36 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		response.WriteError(w, appErrors.NotFoundError("Resource not found"))
+		return
+	}
+
+	const prefix = "/api/v1/events/"
+	idText := strings.TrimPrefix(r.URL.Path, prefix)
+	if idText == "" || strings.Contains(idText, "/") {
+		response.WriteError(w, appErrors.NotFoundError("Resource not found"))
+		return
+	}
+
+	id, err := strconv.ParseInt(idText, 10, 64)
+	if err != nil || id <= 0 {
+		response.WriteError(w, appErrors.NotFoundError("Event not found"))
+		return
+	}
+
+	if err := h.service.Delete(r.Context(), id); err == ErrNotFound {
+		response.WriteError(w, appErrors.NotFoundError("Event not found"))
+		return
+	} else if err != nil {
+		response.WriteError(w, appErrors.InternalError("Unable to delete event"))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 type updateEventStatusRequest struct {
 	Status Status `json:"status"`
 }

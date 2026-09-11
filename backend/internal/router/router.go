@@ -150,6 +150,15 @@ func (r *Router) ServeHTTP(
 
 	if r.finance != nil &&
 		strings.HasPrefix(req.URL.Path, "/api/v1/events/") {
+		if strings.Contains(req.URL.Path, "/expenses/") &&
+			req.Method == http.MethodDelete &&
+			r.auth != nil {
+			r.auth.Require(
+				http.HandlerFunc(r.finance.DeleteExpense),
+			).ServeHTTP(w, req)
+			return
+		}
+
 		if strings.HasSuffix(req.URL.Path, "/income") &&
 			req.Method == http.MethodPost &&
 			r.auth != nil {
@@ -180,6 +189,13 @@ func (r *Router) ServeHTTP(
 
 	if r.events != nil &&
 		strings.HasPrefix(req.URL.Path, "/api/v1/events/") {
+		if req.Method == http.MethodDelete && r.auth != nil {
+			r.auth.Require(
+				http.HandlerFunc(r.events.Delete),
+			).ServeHTTP(w, req)
+			return
+		}
+
 		if req.Method == http.MethodGet {
 			if r.auth == nil {
 				response.WriteError(

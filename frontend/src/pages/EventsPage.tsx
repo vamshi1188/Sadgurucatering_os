@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import {
   createEvent,
+  deleteEvent,
   getEvents,
   updateEventStatus,
   type CateringEvent,
@@ -11,6 +12,7 @@ import {
 import {
   addEventExpense,
   addEventIncome,
+  deleteEventExpense,
   getEventFinancials,
   type EventFinancials,
 } from "../api/finance";
@@ -67,8 +69,10 @@ function FinancePanel({
   entryType,
   onEntryTypeChange,
   onSubmit,
+  onDeleteExpense,
   pending,
   mutationError,
+  deletingExpenseId,
 }: {
   event: CateringEvent;
   financials?: EventFinancials;
@@ -83,6 +87,8 @@ function FinancePanel({
   ) => void;
   pending: boolean;
   mutationError: unknown;
+  onDeleteExpense: (entryId: number) => void;
+  deletingExpenseId: number | null;
 }) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -187,7 +193,19 @@ function FinancePanel({
                   {financials.expenses.map((entry) => (
                     <div className="finance-entry" key={entry.id}>
                       <span>{entry.description}</span>
-                      <strong>{formatCurrency(entry.amount)}</strong>
+                      <div className="finance-entry-value">
+                        <strong>{formatCurrency(entry.amount)}</strong>
+                        <Button
+                          className="finance-delete-button"
+                          variant="danger"
+                          type="button"
+                          aria-label={`Delete expense ${entry.description}`}
+                          onClick={() => onDeleteExpense(entry.id)}
+                          disabled={deletingExpenseId === entry.id}
+                        >
+                          {deletingExpenseId === entry.id ? "..." : "×"}
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -269,12 +287,14 @@ function FinancePanel({
 function EventCard({
   event,
   onStatusChange,
+  onDelete,
   pending,
   expanded,
   onToggleFinance,
 }: {
   event: CateringEvent;
   onStatusChange: (event: CateringEvent) => void;
+  onDelete: (event: CateringEvent) => void;
   pending: boolean;
   expanded: boolean;
   onToggleFinance: (event: CateringEvent) => void;
@@ -289,6 +309,7 @@ function EventCard({
 
   const queryClient = useQueryClient();
   const [entryType, setEntryType] = useState<FinanceEntryType | null>(null);
+  const [deletingExpenseId, setDeletingExpenseId] = useState<number | null>(null);
 
   const incomeMutation = useMutation({
     mutationFn: ({
@@ -327,6 +348,29 @@ function EventCard({
       setEntryType(null);
     },
   });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (entryId: number) => deleteEventExpense(event.id, entryId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["event-financials", event.id],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      });
+      setDeletingExpenseId(null);
+    },
+    onError: () => setDeletingExpenseId(null),
+  });
+
+  function deleteExpense(entryId: number) {
+    if (!window.confirm("Delete this expense?")) {
+      return;
+    }
+
+    setDeletingExpenseId(entryId);
+    deleteExpenseMutation.mutate(entryId);
+  }
 
   function submitFinanceEntry(
     type: FinanceEntryType,
@@ -392,6 +436,16 @@ function EventCard({
                 <span>→</span>
               </Button>
             )}
+
+            <Button
+              className="event-delete-button"
+              variant="danger"
+              onClick={() => onDelete(event)}
+              disabled={pending}
+              aria-label={`Delete event ${event.title}`}
+            >
+              Delete
+            </Button>
           </div>
         </div>
 
@@ -404,8 +458,10 @@ function EventCard({
             entryType={entryType}
             onEntryTypeChange={setEntryType}
             onSubmit={submitFinanceEntry}
+            onDeleteExpense={deleteExpense}
             pending={financePending}
             mutationError={financeError}
+            deletingExpenseId={deletingExpenseId}
           />
         )}
       </div>
@@ -463,6 +519,17 @@ export function EventsPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (event: CateringEvent) => deleteEvent(event.id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      });
+      setExpandedEventId(null);
+    },
+  });
+
   const events = useMemo(() => eventsQuery.data?.data ?? [], [eventsQuery.data]);
 
   const counts = useMemo(
@@ -512,6 +579,14 @@ export function EventsPage() {
     setExpandedEventId((current) =>
       current === event.id ? null : event.id,
     );
+  }
+
+  function removeEvent(event: CateringEvent) {
+    if (!window.confirm(`Delete event "${event.title}" and all its finances?`)) {
+      return;
+    }
+
+    deleteMutation.mutate(event);
   }
 
   return (
@@ -603,12 +678,12 @@ export function EventsPage() {
             <div className="event-day-heading"><span className="section-kicker">TODAY</span><strong>{todayEvents.length} events</strong></div>
             {(["upcoming", "running", "completed"] as EventStatus[]).map((status) => {
               const events = todayEvents.filter((event) => event.status === status);
-              return events.length > 0 ? <div className="event-status-group" key={status}><h3>{status}</h3>{events.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div> : null;
+              return events.length > 0 ? <div className="event-status-group" key={status}><h3>{status}</h3>{events.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} onDelete={removeEvent} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div> : null;
             })}
           </section>
         )}
-        {futureDates.length > 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">UPCOMING</span><strong>Future events</strong></div>{futureDates.map((date) => <div className="event-status-group" key={date}><h3>{formatDate(date).month} {formatDate(date).day}</h3>{groupedEvents[date].map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div>)}</section>}
-        {filtered.length > 0 && todayEvents.length === 0 && futureDates.length === 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">COMPLETED HISTORY</span><strong>Past events</strong></div>{filtered.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</section>}
+        {futureDates.length > 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">UPCOMING</span><strong>Future events</strong></div>{futureDates.map((date) => <div className="event-status-group" key={date}><h3>{formatDate(date).month} {formatDate(date).day}</h3>{groupedEvents[date].map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} onDelete={removeEvent} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</div>)}</section>}
+        {filtered.length > 0 && todayEvents.length === 0 && futureDates.length === 0 && <section className="event-day-group"><div className="event-day-heading"><span className="section-kicker">COMPLETED HISTORY</span><strong>Past events</strong></div>{filtered.map((event) => <EventCard key={event.id} event={event} pending={statusMutation.isPending && statusMutation.variables?.id === event.id} onStatusChange={changeStatus} onDelete={removeEvent} expanded={expandedEventId === event.id} onToggleFinance={toggleFinance} />)}</section>}
       </div>
 
       {showCreate && (
