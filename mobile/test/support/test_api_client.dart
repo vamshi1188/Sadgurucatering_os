@@ -38,11 +38,17 @@ class _DashboardResponseAdapter implements HttpClientAdapter {
     final isEventListRequest = options.path == '/events';
     final isEventDetailsRequest =
         options.path.startsWith('/events/') && options.path != '/events/';
+    final isFinancialsRequest = options.path.endsWith('/financials');
 
     final String responseBody;
 
     if (includeTestEvent && isEventListRequest) {
       responseBody = '{"data":[$_eventJson]}';
+    } else if (includeTestEvent && isFinancialsRequest) {
+      responseBody =
+          '{"data":{"event_id":42,"total_income":"0.00",'
+          '"total_expenses":"0.00","profit":"0.00",'
+          '"income":[],"expenses":[]}}';
     } else if (includeTestEvent && isEventDetailsRequest) {
       responseBody = '{"data":$_eventJson}';
     } else if (options.path.endsWith('/events')) {

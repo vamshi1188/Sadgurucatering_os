@@ -10,16 +10,21 @@ import '../../../localization/app_localizations.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../models/event_status.dart';
+import '../../income/controllers/income_controller.dart';
+import '../../income/screens/create_income_screen.dart';
+import '../../income/screens/income_list_screen.dart';
 
 class EventWorkspaceScreen extends StatefulWidget {
   const EventWorkspaceScreen({
     required this.controller,
     required this.eventId,
+    this.incomeController,
     super.key,
   });
 
   final EventController controller;
   final int eventId;
+  final IncomeController? incomeController;
 
   @override
   State<EventWorkspaceScreen> createState() => _EventWorkspaceScreenState();
@@ -29,6 +34,28 @@ typedef EventDetailsScreen = EventWorkspaceScreen;
 
 class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
   int _selectedModule = 0;
+
+  @override
+  void dispose() {
+    widget.incomeController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openCreateIncome() async {
+    final incomeController = widget.incomeController;
+    if (incomeController == null) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => CreateIncomeScreen(
+          controller: incomeController,
+          onCreated: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -115,6 +142,13 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
             return _EventDetailsContent(
               event: event,
               controller: widget.controller,
+            );
+          }
+
+          if (_selectedModule == 1 && widget.incomeController != null) {
+            return IncomeListScreen(
+              controller: widget.incomeController!,
+              onAddIncome: _openCreateIncome,
             );
           }
 

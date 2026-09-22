@@ -250,4 +250,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorDeletingEvent => 'Unable to delete event.';
+
+  @override
+  String get addIncome => 'Add Income';
+
+  @override
+  String get noIncomeRecords => 'No income records';
+
+  @override
+  String get incomeDetails => 'Income Details';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get deleteIncome => 'Delete Income';
+
+  @override
+  String get deleteIncomeConfirmation =>
+      'Are you sure you want to delete this income?';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get requiredDescription => 'Enter a description';
+
+  @override
+  String get invalidDescription =>
+      'Description must be 255 characters or fewer';
+
+  @override
+  String get invalidAmount => 'Enter a valid amount';
 }

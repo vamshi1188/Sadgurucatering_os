@@ -252,4 +252,38 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get errorDeletingEvent => 'ఈవెంట్‌ను తొలగించడం సాధ్యం కాలేదు.';
+
+  @override
+  String get addIncome => 'ఆదాయాన్ని జోడించండి';
+
+  @override
+  String get noIncomeRecords => 'ఆదాయ రికార్డులు లేవు';
+
+  @override
+  String get incomeDetails => 'ఆదాయ వివరాలు';
+
+  @override
+  String get amount => 'మొత్తం';
+
+  @override
+  String get description => 'వివరణ';
+
+  @override
+  String get deleteIncome => 'ఆదాయాన్ని తొలగించండి';
+
+  @override
+  String get deleteIncomeConfirmation => 'ఈ ఆదాయాన్ని తొలగించాలనుకుంటున్నారా?';
+
+  @override
+  String get save => 'సేవ్ చేయండి';
+
+  @override
+  String get requiredDescription => 'వివరణను నమోదు చేయండి';
+
+  @override
+  String get invalidDescription =>
+      'వివరణ 255 అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి';
+
+  @override
+  String get invalidAmount => 'చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి';
 }

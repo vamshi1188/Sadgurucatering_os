@@ -94,5 +94,11 @@ void main() {
     expect(find.text('Sadguru Function Hall'), findsOneWidget);
     expect(find.text('500'), findsOneWidget);
     expect(find.text('Event Information'), findsOneWidget);
+
+    await tester.tap(find.text('Income'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Total Income'), findsOneWidget);
+    expect(find.text('Add Income'), findsOneWidget);
   });
 }

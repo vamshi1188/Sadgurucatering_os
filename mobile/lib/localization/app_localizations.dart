@@ -565,6 +565,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to delete event.'**
   String get errorDeletingEvent;
+
+  /// No description provided for @addIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Income'**
+  String get addIncome;
+
+  /// No description provided for @noIncomeRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No income records'**
+  String get noIncomeRecords;
+
+  /// No description provided for @incomeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Income Details'**
+  String get incomeDetails;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @deleteIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Income'**
+  String get deleteIncome;
+
+  /// No description provided for @deleteIncomeConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this income?'**
+  String get deleteIncomeConfirmation;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @requiredDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a description'**
+  String get requiredDescription;
+
+  /// No description provided for @invalidDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be 255 characters or fewer'**
+  String get invalidDescription;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get invalidAmount;
 }
 
 class _AppLocalizationsDelegate

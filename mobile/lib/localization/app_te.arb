@@ -77,5 +77,16 @@
   "deleteEventConfirmation": "ఈ ఈవెంట్‌ను తొలగించాలనుకుంటున్నారా?",
   "delete": "తొలగించండి",
   "deletingEvent": "ఈవెంట్‌ను తొలగిస్తోంది...",
-  "errorDeletingEvent": "ఈవెంట్‌ను తొలగించడం సాధ్యం కాలేదు."
+  "errorDeletingEvent": "ఈవెంట్‌ను తొలగించడం సాధ్యం కాలేదు.",
+  "addIncome": "ఆదాయాన్ని జోడించండి",
+  "noIncomeRecords": "ఆదాయ రికార్డులు లేవు",
+  "incomeDetails": "ఆదాయ వివరాలు",
+  "amount": "మొత్తం",
+  "description": "వివరణ",
+  "deleteIncome": "ఆదాయాన్ని తొలగించండి",
+  "deleteIncomeConfirmation": "ఈ ఆదాయాన్ని తొలగించాలనుకుంటున్నారా?",
+  "save": "సేవ్ చేయండి",
+  "requiredDescription": "వివరణను నమోదు చేయండి",
+  "invalidDescription": "వివరణ 255 అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి",
+  "invalidAmount": "చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి"
 }

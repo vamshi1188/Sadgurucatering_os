@@ -14,6 +14,8 @@ import '../../events/screens/event_workspace_screen.dart';
 import '../../events/screens/create_event_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../events/services/event_service.dart';
+import '../../income/controllers/income_controller.dart';
+import '../../income/services/income_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
 import 'finance_placeholder_screen.dart';
@@ -88,6 +90,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
         builder: (context) => EventWorkspaceScreen(
           controller: _eventController,
           eventId: event.id,
+          incomeController: IncomeController(
+            eventId: event.id,
+            service: IncomeService(widget.apiClient),
+          ),
         ),
       ),
     );
