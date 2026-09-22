@@ -153,4 +153,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaysOverview => 'Today\'s Overview';
+
+  @override
+  String get createEvent => 'Create Event';
+
+  @override
+  String get createEventDescription =>
+      'Add the event details to create a new event.';
+
+  @override
+  String get eventTitle => 'Event Title';
+
+  @override
+  String get enterEventTitle => 'Enter event title';
+
+  @override
+  String get eventDate => 'Event Date';
+
+  @override
+  String get selectEventDate => 'Select event date';
+
+  @override
+  String get enterVenue => 'Enter venue';
+
+  @override
+  String get enterGuestCount => 'Enter guest count';
+
+  @override
+  String get invalidGuestCount => 'Enter a valid guest count.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get errorCreatingEvent =>
+      'Unable to create the event. Please try again.';
 }

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/network/api_client.dart';
+
 import 'package:sadguru_catering/features/authentication/controllers/authentication_controller.dart';
 import 'package:sadguru_catering/localization/app_localizations.dart';
+
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../dashboard/services/dashboard_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
-import 'events_placeholder_screen.dart';
 import 'finance_placeholder_screen.dart';
 import 'settings_placeholder_screen.dart';
+import '../../events/controllers/event_controller.dart';
+import '../../events/screens/create_event_screen.dart';
+import '../../events/screens/event_list_screen.dart';
+import '../../events/services/event_service.dart';
 
 class ApplicationShellScreen extends StatefulWidget {
   const ApplicationShellScreen({
@@ -25,13 +30,13 @@ class ApplicationShellScreen extends StatefulWidget {
   final ApiClient apiClient;
 
   @override
-  State<ApplicationShellScreen> createState() =>
-      _ApplicationShellScreenState();
+  State<ApplicationShellScreen> createState() => _ApplicationShellScreenState();
 }
 
 class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   ApplicationTab _currentTab = ApplicationTab.dashboard;
   late final DashboardController _dashboardController;
+  late final EventController _eventController;
 
   @override
   void initState() {
@@ -39,6 +44,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
     _dashboardController = DashboardController(
       DashboardService(widget.apiClient),
     );
+    _eventController = EventController(EventService(widget.apiClient));
   }
 
   void _selectTab(ApplicationTab tab) {
@@ -58,9 +64,19 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
       return;
     }
 
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/login',
-      (route) => false,
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+  }
+
+  Future<void> _openCreateEvent() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => CreateEventScreen(
+          controller: _eventController,
+          onCreated: (_) {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
     );
   }
 
@@ -69,7 +85,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
       case ApplicationTab.dashboard:
         return DashboardScreen(controller: _dashboardController);
       case ApplicationTab.events:
-        return const EventsPlaceholderScreen();
+        return EventListScreen(
+          controller: _eventController,
+          onCreateEvent: _openCreateEvent,
+        );
       case ApplicationTab.finance:
         return const FinancePlaceholderScreen();
       case ApplicationTab.settings:
@@ -80,6 +99,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   @override
   void dispose() {
     _dashboardController.dispose();
+    _eventController.dispose();
     super.dispose();
   }
 
@@ -93,18 +113,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
         actions: [
           SegmentedButton<String>(
             segments: const [
-              ButtonSegment<String>(
-                value: 'en',
-                label: Text('English'),
-              ),
-              ButtonSegment<String>(
-                value: 'te',
-                label: Text('తెలుగు'),
-              ),
+              ButtonSegment<String>(value: 'en', label: Text('English')),
+              ButtonSegment<String>(value: 'te', label: Text('తెలుగు')),
             ],
-            selected: {
-              Localizations.localeOf(context).languageCode,
-            },
+            selected: {Localizations.localeOf(context).languageCode},
             onSelectionChanged: (selection) {
               widget.onLocaleChanged(Locale(selection.first));
             },

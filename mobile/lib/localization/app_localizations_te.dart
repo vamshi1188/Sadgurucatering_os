@@ -154,4 +154,40 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get todaysOverview => 'ఈ రోజు అవలోకనం';
+
+  @override
+  String get createEvent => 'ఈవెంట్‌ను సృష్టించండి';
+
+  @override
+  String get createEventDescription =>
+      'కొత్త ఈవెంట్‌ను సృష్టించడానికి వివరాలను నమోదు చేయండి.';
+
+  @override
+  String get eventTitle => 'ఈవెంట్ పేరు';
+
+  @override
+  String get enterEventTitle => 'ఈవెంట్ పేరు నమోదు చేయండి';
+
+  @override
+  String get eventDate => 'ఈవెంట్ తేదీ';
+
+  @override
+  String get selectEventDate => 'ఈవెంట్ తేదీని ఎంచుకోండి';
+
+  @override
+  String get enterVenue => 'వేదికను నమోదు చేయండి';
+
+  @override
+  String get enterGuestCount => 'అతిథుల సంఖ్యను నమోదు చేయండి';
+
+  @override
+  String get invalidGuestCount =>
+      'చెల్లుబాటు అయ్యే అతిథుల సంఖ్యను నమోదు చేయండి.';
+
+  @override
+  String get cancel => 'రద్దు చేయండి';
+
+  @override
+  String get errorCreatingEvent =>
+      'ఈవెంట్‌ను సృష్టించడం సాధ్యపడలేదు. మళ్లీ ప్రయత్నించండి.';
 }

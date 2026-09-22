@@ -16,35 +16,46 @@
   "dashboard": "Dashboard",
   "events": "Events",
   "finance": "Finance",
-  "settings": "Settings"
-  ,"networkError": "We couldn't connect to the server. Check your connection and try again."
-  ,"timeoutError": "The request took too long. Please try again."
-  ,"unauthorizedError": "Your session has expired. Please sign in again."
-  ,"forbiddenError": "You don't have permission to perform this action."
-  ,"notFoundError": "The requested resource was not found."
-  ,"validationError": "Please check your input and try again."
-  ,"serverError": "The server is temporarily unavailable. Please try again."
-  ,"unknownError": "Something went wrong. Please try again."
-  ,"totalEvents": "Total Events"
-  ,"upcoming": "Upcoming"
-  ,"running": "Running"
-  ,"completed": "Completed"
-  ,"totalIncome": "Total Income"
-  ,"totalExpenses": "Total Expenses"
-  ,"profit": "Profit"
-  ,"eventsList": "Events"
-  ,"noEvents": "No events available"
-  ,"guests": "Guests"
-  ,"venue": "Venue"
-  ,"income": "Income"
-  ,"expenses": "Expenses"
-  ,"status": "Status"
-  ,"today": "Today"
-  ,"tomorrow": "Tomorrow"
-  ,"thisWeek": "This Week"
-  ,"thisMonth": "This Month"
-  ,"thisYear": "This Year"
-  ,"upcomingEvents": "Upcoming Events"
-  ,"financialPerformance": "Financial Performance"
-  ,"todaysOverview": "Today's Overview"
+  "settings": "Settings",
+  "networkError": "We couldn't connect to the server. Check your connection and try again.",
+  "timeoutError": "The request took too long. Please try again.",
+  "unauthorizedError": "Your session has expired. Please sign in again.",
+  "forbiddenError": "You don't have permission to perform this action.",
+  "notFoundError": "The requested resource was not found.",
+  "validationError": "Please check your input and try again.",
+  "serverError": "The server is temporarily unavailable. Please try again.",
+  "unknownError": "Something went wrong. Please try again.",
+  "totalEvents": "Total Events",
+  "upcoming": "Upcoming",
+  "running": "Running",
+  "completed": "Completed",
+  "totalIncome": "Total Income",
+  "totalExpenses": "Total Expenses",
+  "profit": "Profit",
+  "eventsList": "Events",
+  "noEvents": "No events available",
+  "guests": "Guests",
+  "venue": "Venue",
+  "income": "Income",
+  "expenses": "Expenses",
+  "status": "Status",
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "thisWeek": "This Week",
+  "thisMonth": "This Month",
+  "thisYear": "This Year",
+  "upcomingEvents": "Upcoming Events",
+  "financialPerformance": "Financial Performance",
+  "todaysOverview": "Today's Overview",
+  "createEvent": "Create Event",
+  "createEventDescription": "Add the event details to create a new event.",
+  "eventTitle": "Event Title",
+  "enterEventTitle": "Enter event title",
+  "eventDate": "Event Date",
+  "selectEventDate": "Select event date",
+  "enterVenue": "Enter venue",
+  "enterGuestCount": "Enter guest count",
+  "invalidGuestCount": "Enter a valid guest count.",
+  "cancel": "Cancel",
+  "errorCreatingEvent": "Unable to create the event. Please try again."
 }

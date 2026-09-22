@@ -379,6 +379,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Overview'**
   String get todaysOverview;
+
+  /// No description provided for @createEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Event'**
+  String get createEvent;
+
+  /// No description provided for @createEventDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the event details to create a new event.'**
+  String get createEventDescription;
+
+  /// No description provided for @eventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Title'**
+  String get eventTitle;
+
+  /// No description provided for @enterEventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter event title'**
+  String get enterEventTitle;
+
+  /// No description provided for @eventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Date'**
+  String get eventDate;
+
+  /// No description provided for @selectEventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select event date'**
+  String get selectEventDate;
+
+  /// No description provided for @enterVenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter venue'**
+  String get enterVenue;
+
+  /// No description provided for @enterGuestCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter guest count'**
+  String get enterGuestCount;
+
+  /// No description provided for @invalidGuestCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid guest count.'**
+  String get invalidGuestCount;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @errorCreatingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to create the event. Please try again.'**
+  String get errorCreatingEvent;
 }
 
 class _AppLocalizationsDelegate

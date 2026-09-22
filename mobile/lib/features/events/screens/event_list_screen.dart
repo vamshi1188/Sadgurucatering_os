@@ -11,10 +11,16 @@ import '../models/event.dart';
 import '../widgets/event_list.dart';
 
 class EventListScreen extends StatefulWidget {
-  const EventListScreen({required this.controller, this.onEventTap, super.key});
+  const EventListScreen({
+    required this.controller,
+    this.onEventTap,
+    this.onCreateEvent,
+    super.key,
+  });
 
   final EventController controller;
   final ValueChanged<Event>? onEventTap;
+  final VoidCallback? onCreateEvent;
 
   @override
   State<EventListScreen> createState() => _EventListScreenState();
@@ -53,11 +59,20 @@ class _EventListScreenState extends State<EventListScreen> {
             onRefresh: widget.controller.refresh,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(
-                top: AppSpacing.extraLarge,
-                bottom: 110,
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.medium,
+                AppSpacing.extraLarge,
+                AppSpacing.medium,
+                110,
               ),
-              children: [EmptyView(message: l10n.noEvents)],
+              children: [
+                EmptyView(message: l10n.noEvents),
+                const SizedBox(height: AppSpacing.large),
+                _CreateEventButton(
+                  label: l10n.createEvent,
+                  onPressed: widget.onCreateEvent,
+                ),
+              ],
             ),
           );
         }
@@ -78,6 +93,11 @@ class _EventListScreenState extends State<EventListScreen> {
                 count: widget.controller.events.length,
               ),
               const SizedBox(height: AppSpacing.large),
+              _CreateEventButton(
+                label: l10n.createEvent,
+                onPressed: widget.onCreateEvent,
+              ),
+              const SizedBox(height: AppSpacing.large),
               EventList(
                 events: widget.controller.events,
                 onEventTap: (event) {
@@ -88,6 +108,25 @@ class _EventListScreenState extends State<EventListScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class _CreateEventButton extends StatelessWidget {
+  const _CreateEventButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.add_rounded),
+        label: Text(label),
+      ),
     );
   }
 }
