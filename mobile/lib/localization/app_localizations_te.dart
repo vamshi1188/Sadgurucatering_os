@@ -190,4 +190,25 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get errorCreatingEvent =>
       'ఈవెంట్‌ను సృష్టించడం సాధ్యపడలేదు. మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get eventDetails => 'ఈవెంట్ వివరాలు';
+
+  @override
+  String get eventInformation => 'ఈవెంట్ సమాచారం';
+
+  @override
+  String get eventRecord => 'ఈవెంట్ రికార్డు';
+
+  @override
+  String get eventNotFound => 'ఈవెంట్ కనుగొనబడలేదు.';
+
+  @override
+  String get eventId => 'ఈవెంట్ ID';
+
+  @override
+  String get createdAt => 'సృష్టించిన సమయం';
+
+  @override
+  String get updatedAt => 'నవీకరించిన సమయం';
 }

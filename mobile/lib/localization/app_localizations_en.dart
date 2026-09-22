@@ -188,4 +188,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorCreatingEvent =>
       'Unable to create the event. Please try again.';
+
+  @override
+  String get eventDetails => 'Event Details';
+
+  @override
+  String get eventInformation => 'Event Information';
+
+  @override
+  String get eventRecord => 'Event Record';
+
+  @override
+  String get eventNotFound => 'Event not found.';
+
+  @override
+  String get eventId => 'Event ID';
+
+  @override
+  String get createdAt => 'Created At';
+
+  @override
+  String get updatedAt => 'Updated At';
 }

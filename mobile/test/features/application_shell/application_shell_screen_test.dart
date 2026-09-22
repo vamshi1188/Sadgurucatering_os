@@ -67,4 +67,32 @@ void main() {
     expect(find.text('Settings'), findsWidgets);
     expect(find.text('Finance'), findsOneWidget);
   });
+
+  testWidgets('opens event details when an event is tapped', (tester) async {
+    final apiClient = createTestApiClient(includeTestEvent: true);
+
+    await tester.pumpWidget(
+      SadguruApp(
+        config: config,
+        apiClient: apiClient,
+        initialAuthenticationState: const AuthenticationState.authenticated(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Events'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Wedding Reception'), findsOneWidget);
+
+    await tester.tap(find.text('Wedding Reception'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Event Details'), findsOneWidget);
+    expect(find.text('Wedding Reception'), findsOneWidget);
+    expect(find.text('Sadguru Function Hall'), findsOneWidget);
+    expect(find.text('500'), findsOneWidget);
+    expect(find.text('Event Information'), findsOneWidget);
+  });
 }

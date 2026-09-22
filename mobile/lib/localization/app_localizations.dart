@@ -445,6 +445,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to create the event. Please try again.'**
   String get errorCreatingEvent;
+
+  /// No description provided for @eventDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Details'**
+  String get eventDetails;
+
+  /// No description provided for @eventInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Information'**
+  String get eventInformation;
+
+  /// No description provided for @eventRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Record'**
+  String get eventRecord;
+
+  /// No description provided for @eventNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Event not found.'**
+  String get eventNotFound;
+
+  /// No description provided for @eventId.
+  ///
+  /// In en, this message translates to:
+  /// **'Event ID'**
+  String get eventId;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get createdAt;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated At'**
+  String get updatedAt;
 }
 
 class _AppLocalizationsDelegate

@@ -8,14 +8,16 @@ import 'package:sadguru_catering/localization/app_localizations.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../dashboard/services/dashboard_service.dart';
+import '../../events/controllers/event_controller.dart';
+import '../../events/models/event.dart';
+import '../../events/screens/event_details_screen.dart';
+import '../../events/screens/create_event_screen.dart';
+import '../../events/screens/event_list_screen.dart';
+import '../../events/services/event_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
 import 'finance_placeholder_screen.dart';
 import 'settings_placeholder_screen.dart';
-import '../../events/controllers/event_controller.dart';
-import '../../events/screens/create_event_screen.dart';
-import '../../events/screens/event_list_screen.dart';
-import '../../events/services/event_service.dart';
 
 class ApplicationShellScreen extends StatefulWidget {
   const ApplicationShellScreen({
@@ -80,6 +82,15 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
     );
   }
 
+  Future<void> _openEventDetails(Event event) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) =>
+            EventDetailsScreen(controller: _eventController, eventId: event.id),
+      ),
+    );
+  }
+
   Widget _buildCurrentScreen() {
     switch (_currentTab) {
       case ApplicationTab.dashboard:
@@ -88,6 +99,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
         return EventListScreen(
           controller: _eventController,
           onCreateEvent: _openCreateEvent,
+          onEventTap: _openEventDetails,
         );
       case ApplicationTab.finance:
         return const FinancePlaceholderScreen();

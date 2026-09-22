@@ -57,5 +57,12 @@
   "enterGuestCount": "Enter guest count",
   "invalidGuestCount": "Enter a valid guest count.",
   "cancel": "Cancel",
-  "errorCreatingEvent": "Unable to create the event. Please try again."
+  "errorCreatingEvent": "Unable to create the event. Please try again.",
+  "eventDetails": "Event Details",
+  "eventInformation": "Event Information",
+  "eventRecord": "Event Record",
+  "eventNotFound": "Event not found.",
+  "eventId": "Event ID",
+  "createdAt": "Created At",
+  "updatedAt": "Updated At"
 }
