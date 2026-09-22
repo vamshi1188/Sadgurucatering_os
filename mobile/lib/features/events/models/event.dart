@@ -21,6 +21,28 @@ class Event {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  Event copyWith({
+    int? id,
+    String? title,
+    String? eventDate,
+    String? venue,
+    int? guestCount,
+    EventStatus? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Event(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      eventDate: eventDate ?? this.eventDate,
+      venue: venue ?? this.venue,
+      guestCount: guestCount ?? this.guestCount,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       id: (json['id'] as num).toInt(),

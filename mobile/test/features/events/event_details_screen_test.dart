@@ -16,6 +16,12 @@ class _FakeEventService implements EventServiceContract {
   Event? event;
   ApiException? error;
   int getEventCallCount = 0;
+  int updateStatusCallCount = 0;
+  int? lastUpdatedEventId;
+  EventStatus? lastUpdatedStatus;
+  Completer<Event>? updateStatusCompleter;
+  int deleteEventCallCount = 0;
+  int? lastDeletedEventId;
 
   @override
   Future<List<Event>> getEvents() async => event == null ? [] : [event!];
@@ -46,13 +52,30 @@ class _FakeEventService implements EventServiceContract {
   }
 
   @override
-  Future<Event> updateStatus(int id, EventStatus status) {
-    throw UnimplementedError();
+  Future<Event> updateStatus(int id, EventStatus status) async {
+    updateStatusCallCount++;
+    lastUpdatedEventId = id;
+    lastUpdatedStatus = status;
+
+    final completer = updateStatusCompleter;
+    if (completer != null) {
+      return completer.future;
+    }
+
+    event = event!.copyWith(status: status);
+    return event!;
   }
 
   @override
-  Future<void> deleteEvent(int id) {
-    throw UnimplementedError();
+  Future<void> deleteEvent(int id) async {
+    deleteEventCallCount++;
+    lastDeletedEventId = id;
+
+    if (error != null) {
+      throw error!;
+    }
+
+    event = null;
   }
 }
 
@@ -98,6 +121,8 @@ void main() {
       expect(find.text('500'), findsOneWidget);
       expect(find.text('Upcoming'), findsOneWidget);
       expect(find.text('Event Information'), findsOneWidget);
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pumpAndSettle();
       expect(find.text('Event Record'), findsOneWidget);
       expect(find.text('Event ID'), findsOneWidget);
       expect(find.text('42'), findsOneWidget);
@@ -134,28 +159,162 @@ void main() {
       expect(find.text('Completed'), findsOneWidget);
     });
 
-  testWidgets('shows loading state while event is loading', (tester) async {
-  final service = _SlowEventService(_testEvent());
-  final controller = EventController(service);
+    testWidgets('starts an upcoming event', (tester) async {
+      final service = _FakeEventService(_testEvent());
+      final controller = EventController(service);
 
-  await tester.pumpWidget(
-    _buildTestApp(
-      controller: controller,
-      eventId: 42,
-    ),
-  );
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
 
-  // EventDetailsScreen starts loading after its first frame.
-  await tester.pump();
+      await tester.pumpAndSettle();
 
-  expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Start Event'), findsOneWidget);
 
-  service.complete();
+      await tester.tap(find.text('Start Event'));
+      await tester.pumpAndSettle();
 
-  await tester.pumpAndSettle();
+      expect(service.updateStatusCallCount, 1);
+      expect(service.lastUpdatedEventId, 42);
+      expect(service.lastUpdatedStatus, EventStatus.running);
+      expect(find.text('Running'), findsOneWidget);
+      expect(find.text('Complete Event'), findsOneWidget);
+      expect(find.text('Start Event'), findsNothing);
+    });
 
-  expect(find.text('Wedding Reception'), findsOneWidget);
-});
+    testWidgets('completes a running event', (tester) async {
+      final service = _FakeEventService(
+        _testEvent(status: EventStatus.running),
+      );
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Complete Event'), findsOneWidget);
+
+      await tester.tap(find.text('Complete Event'));
+      await tester.pumpAndSettle();
+
+      expect(service.updateStatusCallCount, 1);
+      expect(service.lastUpdatedEventId, 42);
+      expect(service.lastUpdatedStatus, EventStatus.completed);
+      expect(find.text('Completed'), findsOneWidget);
+      expect(find.text('Complete Event'), findsNothing);
+    });
+
+    testWidgets('does not show a status action for a completed event', (
+      tester,
+    ) async {
+      final service = _FakeEventService(
+        _testEvent(status: EventStatus.completed),
+      );
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Start Event'), findsNothing);
+      expect(find.text('Complete Event'), findsNothing);
+    });
+
+    testWidgets('cancelling delete keeps the event', (tester) async {
+      final service = _FakeEventService(_testEvent());
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Delete Event'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Are you sure you want to delete this event?'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(service.deleteEventCallCount, 0);
+      expect(find.text('Wedding Reception'), findsOneWidget);
+    });
+
+    testWidgets('confirming delete removes the event and closes details', (
+      tester,
+    ) async {
+      final service = _FakeEventService(_testEvent());
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Delete Event'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(service.deleteEventCallCount, 1);
+      expect(service.lastDeletedEventId, 42);
+      expect(find.text('Wedding Reception'), findsNothing);
+    });
+
+    testWidgets('delete failure keeps the event', (tester) async {
+      final service = _FakeEventService(_testEvent());
+
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      service.error = const ApiException(message: 'Unable to delete event');
+
+      await tester.tap(find.text('Delete Event'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(service.deleteEventCallCount, 1);
+      expect(find.text('Wedding Reception'), findsOneWidget);
+      expect(find.text('Unable to delete event.'), findsOneWidget);
+    });
+
+    testWidgets('shows loading state while event is loading', (tester) async {
+      final service = _SlowEventService(_testEvent());
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      // EventDetailsScreen starts loading after its first frame.
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      service.complete();
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Wedding Reception'), findsOneWidget);
+    });
 
     testWidgets('shows error state when loading fails', (tester) async {
       final service = _FakeEventService(_testEvent());

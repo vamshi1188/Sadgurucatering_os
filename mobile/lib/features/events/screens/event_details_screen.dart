@@ -54,7 +54,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
           final error = widget.controller.error;
 
-          if (error != null || widget.controller.selectedEvent == null) {
+          if (widget.controller.selectedEvent == null) {
             if (error != null) {
               return ErrorView(
                 message: localizedAppErrorMessage(l10n, error),
@@ -103,12 +103,135 @@ class _EventDetailsContent extends StatelessWidget {
           AppSpacing.extraLarge,
         ),
         children: [
+          if (controller.error != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.medium),
+              child: Text(
+                l10n.errorDeletingEvent,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
           _EventHero(event: event),
           const SizedBox(height: AppSpacing.large),
           _EventInformationCard(event: event),
           const SizedBox(height: AppSpacing.medium),
+          _EventStatusAction(event: event, controller: controller),
+          const SizedBox(height: AppSpacing.medium),
+          _EventDeleteAction(event: event, controller: controller),
+          const SizedBox(height: AppSpacing.medium),
           _EventMetadataCard(event: event, l10n: l10n),
         ],
+      ),
+    );
+  }
+}
+
+class _EventStatusAction extends StatelessWidget {
+  const _EventStatusAction({required this.event, required this.controller});
+
+  final Event event;
+  final EventController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    EventStatus? nextStatus;
+    String? actionLabel;
+
+    switch (event.status) {
+      case EventStatus.upcoming:
+        nextStatus = EventStatus.running;
+        actionLabel = l10n.startEvent;
+      case EventStatus.running:
+        nextStatus = EventStatus.completed;
+        actionLabel = l10n.completeEvent;
+      case EventStatus.completed:
+        return const SizedBox.shrink();
+    }
+
+    final status = nextStatus;
+    final label = actionLabel;
+
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: controller.isMutating
+            ? null
+            : () async {
+                await controller.updateStatus(event.id, status);
+              },
+        child: controller.isMutating
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(label),
+      ),
+    );
+  }
+}
+
+class _EventDeleteAction extends StatelessWidget {
+  const _EventDeleteAction({required this.event, required this.controller});
+
+  final Event event;
+  final EventController controller;
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.deleteEvent),
+          content: Text(l10n.deleteEventConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    final deleted = await controller.deleteEvent(event.id);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (deleted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: controller.isMutating ? null : () => _confirmDelete(context),
+        child: controller.isMutating
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(l10n.deleteEvent),
       ),
     );
   }
