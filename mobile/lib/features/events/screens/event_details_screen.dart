@@ -11,8 +11,8 @@ import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../models/event_status.dart';
 
-class EventDetailsScreen extends StatefulWidget {
-  const EventDetailsScreen({
+class EventWorkspaceScreen extends StatefulWidget {
+  const EventWorkspaceScreen({
     required this.controller,
     required this.eventId,
     super.key,
@@ -22,10 +22,14 @@ class EventDetailsScreen extends StatefulWidget {
   final int eventId;
 
   @override
-  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+  State<EventWorkspaceScreen> createState() => _EventWorkspaceScreenState();
 }
 
-class _EventDetailsScreenState extends State<EventDetailsScreen> {
+typedef EventDetailsScreen = EventWorkspaceScreen;
+
+class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
+  int _selectedModule = 0;
+
   @override
   void initState() {
     super.initState();
@@ -44,7 +48,40 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.eventDetails)),
+      appBar: AppBar(
+        title: Text(l10n.eventWorkspace),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+            child: Row(
+              children: [
+                _WorkspaceTab(
+                  label: l10n.eventOverview,
+                  selected: _selectedModule == 0,
+                  onTap: () => setState(() => _selectedModule = 0),
+                ),
+                _WorkspaceTab(
+                  label: l10n.income,
+                  selected: _selectedModule == 1,
+                  onTap: () => setState(() => _selectedModule = 1),
+                ),
+                _WorkspaceTab(
+                  label: l10n.expenses,
+                  selected: _selectedModule == 2,
+                  onTap: () => setState(() => _selectedModule = 2),
+                ),
+                _WorkspaceTab(
+                  label: l10n.profitability,
+                  selected: _selectedModule == 3,
+                  onTap: () => setState(() => _selectedModule = 3),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: AnimatedBuilder(
         animation: widget.controller,
         builder: (context, _) {
@@ -72,11 +109,106 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             );
           }
 
-          return _EventDetailsContent(
-            event: widget.controller.selectedEvent!,
-            controller: widget.controller,
+          final event = widget.controller.selectedEvent!;
+
+          if (_selectedModule == 0) {
+            return _EventDetailsContent(
+              event: event,
+              controller: widget.controller,
+            );
+          }
+
+          return _WorkspaceModulePlaceholder(
+            label: _moduleLabel(l10n),
+            description: l10n.workspaceModuleComingSoon,
+            icon: _moduleIcon(),
           );
         },
+      ),
+    );
+  }
+
+  String _moduleLabel(AppLocalizations l10n) {
+    switch (_selectedModule) {
+      case 1:
+        return l10n.income;
+      case 2:
+        return l10n.expenses;
+      case 3:
+        return l10n.profitability;
+      default:
+        return l10n.eventOverview;
+    }
+  }
+
+  IconData _moduleIcon() {
+    switch (_selectedModule) {
+      case 1:
+        return Icons.trending_up_rounded;
+      case 2:
+        return Icons.receipt_long_outlined;
+      case 3:
+        return Icons.insights_outlined;
+      default:
+        return Icons.event_note_outlined;
+    }
+  }
+}
+
+class _WorkspaceTab extends StatelessWidget {
+  const _WorkspaceTab({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onTap(),
+      ),
+    );
+  }
+}
+
+class _WorkspaceModulePlaceholder extends StatelessWidget {
+  const _WorkspaceModulePlaceholder({
+    required this.label,
+    required this.description,
+    required this.icon,
+  });
+
+  final String label;
+  final String description;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.extraLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48),
+            const SizedBox(height: AppSpacing.medium),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(description, textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

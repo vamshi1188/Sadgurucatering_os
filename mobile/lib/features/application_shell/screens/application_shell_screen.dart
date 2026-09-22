@@ -10,7 +10,7 @@ import '../../dashboard/screens/dashboard_screen.dart';
 import '../../dashboard/services/dashboard_service.dart';
 import '../../events/controllers/event_controller.dart';
 import '../../events/models/event.dart';
-import '../../events/screens/event_details_screen.dart';
+import '../../events/screens/event_workspace_screen.dart';
 import '../../events/screens/create_event_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../events/services/event_service.dart';
@@ -85,8 +85,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   Future<void> _openEventDetails(Event event) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) =>
-            EventDetailsScreen(controller: _eventController, eventId: event.id),
+        builder: (context) => EventWorkspaceScreen(
+          controller: _eventController,
+          eventId: event.id,
+        ),
       ),
     );
   }

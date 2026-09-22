@@ -452,6 +452,30 @@ abstract class AppLocalizations {
   /// **'Event Details'**
   String get eventDetails;
 
+  /// No description provided for @eventWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Workspace'**
+  String get eventWorkspace;
+
+  /// No description provided for @eventOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get eventOverview;
+
+  /// No description provided for @profitability.
+  ///
+  /// In en, this message translates to:
+  /// **'Profitability'**
+  String get profitability;
+
+  /// No description provided for @workspaceModuleComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'This workspace module will be available in a future release.'**
+  String get workspaceModuleComingSoon;
+
   /// No description provided for @eventInformation.
   ///
   /// In en, this message translates to:
@@ -487,6 +511,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Updated At'**
   String get updatedAt;
+
+  /// No description provided for @startEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Event'**
+  String get startEvent;
+
+  /// No description provided for @completeEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Event'**
+  String get completeEvent;
+
+  /// No description provided for @updatingEventStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating event status...'**
+  String get updatingEventStatus;
+
+  /// No description provided for @errorUpdatingEventStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update event status.'**
+  String get errorUpdatingEventStatus;
+
+  /// No description provided for @deleteEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Event'**
+  String get deleteEvent;
+
+  /// No description provided for @deleteEventConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this event?'**
+  String get deleteEventConfirmation;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deletingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting event...'**
+  String get deletingEvent;
+
+  /// No description provided for @errorDeletingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to delete event.'**
+  String get errorDeletingEvent;
 }
 
 class _AppLocalizationsDelegate

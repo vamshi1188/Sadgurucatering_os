@@ -193,6 +193,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventDetails => 'Event Details';
 
   @override
+  String get eventWorkspace => 'Event Workspace';
+
+  @override
+  String get eventOverview => 'Overview';
+
+  @override
+  String get profitability => 'Profitability';
+
+  @override
+  String get workspaceModuleComingSoon =>
+      'This workspace module will be available in a future release.';
+
+  @override
   String get eventInformation => 'Event Information';
 
   @override
@@ -209,4 +222,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updatedAt => 'Updated At';
+
+  @override
+  String get startEvent => 'Start Event';
+
+  @override
+  String get completeEvent => 'Complete Event';
+
+  @override
+  String get updatingEventStatus => 'Updating event status...';
+
+  @override
+  String get errorUpdatingEventStatus => 'Unable to update event status.';
+
+  @override
+  String get deleteEvent => 'Delete Event';
+
+  @override
+  String get deleteEventConfirmation =>
+      'Are you sure you want to delete this event?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deletingEvent => 'Deleting event...';
+
+  @override
+  String get errorDeletingEvent => 'Unable to delete event.';
 }

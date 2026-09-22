@@ -195,6 +195,19 @@ class AppLocalizationsTe extends AppLocalizations {
   String get eventDetails => 'ఈవెంట్ వివరాలు';
 
   @override
+  String get eventWorkspace => 'ఈవెంట్ వర్క్‌స్పేస్';
+
+  @override
+  String get eventOverview => 'అవలోకనం';
+
+  @override
+  String get profitability => 'లాభదాయకత';
+
+  @override
+  String get workspaceModuleComingSoon =>
+      'ఈ వర్క్‌స్పేస్ మాడ్యూల్ భవిష్యత్ విడుదలలో అందుబాటులో ఉంటుంది.';
+
+  @override
   String get eventInformation => 'ఈవెంట్ సమాచారం';
 
   @override
@@ -211,4 +224,32 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get updatedAt => 'నవీకరించిన సమయం';
+
+  @override
+  String get startEvent => 'ఈవెంట్ ప్రారంభించండి';
+
+  @override
+  String get completeEvent => 'ఈవెంట్ పూర్తి చేయండి';
+
+  @override
+  String get updatingEventStatus => 'ఈవెంట్ స్థితిని నవీకరిస్తోంది...';
+
+  @override
+  String get errorUpdatingEventStatus =>
+      'ఈవెంట్ స్థితిని నవీకరించడం సాధ్యం కాలేదు.';
+
+  @override
+  String get deleteEvent => 'ఈవెంట్ తొలగించండి';
+
+  @override
+  String get deleteEventConfirmation => 'ఈ ఈవెంట్‌ను తొలగించాలనుకుంటున్నారా?';
+
+  @override
+  String get delete => 'తొలగించండి';
+
+  @override
+  String get deletingEvent => 'ఈవెంట్‌ను తొలగిస్తోంది...';
+
+  @override
+  String get errorDeletingEvent => 'ఈవెంట్‌ను తొలగించడం సాధ్యం కాలేదు.';
 }

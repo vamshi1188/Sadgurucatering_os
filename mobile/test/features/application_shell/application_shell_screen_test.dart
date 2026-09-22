@@ -89,7 +89,7 @@ void main() {
     await tester.tap(find.text('Wedding Reception'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Event Details'), findsOneWidget);
+    expect(find.text('Event Workspace'), findsOneWidget);
     expect(find.text('Wedding Reception'), findsOneWidget);
     expect(find.text('Sadguru Function Hall'), findsOneWidget);
     expect(find.text('500'), findsOneWidget);

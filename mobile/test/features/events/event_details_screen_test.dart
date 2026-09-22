@@ -95,11 +95,12 @@ Event _testEvent({EventStatus status = EventStatus.upcoming}) {
 Widget _buildTestApp({
   required EventController controller,
   required int eventId,
+  Locale locale = const Locale('en'),
 }) {
   return MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    locale: const Locale('en'),
+    locale: locale,
     home: EventDetailsScreen(controller: controller, eventId: eventId),
   );
 }
@@ -224,6 +225,53 @@ void main() {
       expect(find.text('Complete Event'), findsNothing);
     });
 
+    testWidgets('navigates workspace financial module slots', (tester) async {
+      final service = _FakeEventService(_testEvent());
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(controller: controller, eventId: 42),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Income'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Income'), findsNWidgets(2));
+      expect(
+        find.text(
+          'This workspace module will be available in a future release.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Profitability'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Profitability'), findsNWidgets(2));
+    });
+
+    testWidgets('workspace module labels support Telugu', (tester) async {
+      final service = _FakeEventService(_testEvent());
+      final controller = EventController(service);
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          controller: controller,
+          eventId: 42,
+          locale: const Locale('te'),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('అవలోకనం'), findsOneWidget);
+      expect(find.text('ఆదాయం'), findsOneWidget);
+      expect(find.text('ఖర్చులు'), findsOneWidget);
+      expect(find.text('లాభదాయకత'), findsOneWidget);
+    });
+
     testWidgets('cancelling delete keeps the event', (tester) async {
       final service = _FakeEventService(_testEvent());
       final controller = EventController(service);
@@ -234,6 +282,11 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(
+        find.text('Delete Event'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Delete Event'));
       await tester.pumpAndSettle();
 
@@ -246,6 +299,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(service.deleteEventCallCount, 0);
+      await tester.scrollUntilVisible(
+        find.text('Wedding Reception'),
+        -500,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Wedding Reception'), findsOneWidget);
     });
 
@@ -261,6 +319,11 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(
+        find.text('Delete Event'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Delete Event'));
       await tester.pumpAndSettle();
 
@@ -285,6 +348,11 @@ void main() {
 
       service.error = const ApiException(message: 'Unable to delete event');
 
+      await tester.scrollUntilVisible(
+        find.text('Delete Event'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Delete Event'));
       await tester.pumpAndSettle();
 
@@ -292,6 +360,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(service.deleteEventCallCount, 1);
+      await tester.scrollUntilVisible(
+        find.text('Wedding Reception'),
+        -500,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Wedding Reception'), findsOneWidget);
       expect(find.text('Unable to delete event.'), findsOneWidget);
     });
