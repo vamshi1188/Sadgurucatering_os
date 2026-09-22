@@ -100,5 +100,11 @@ void main() {
 
     expect(find.text('Total Income'), findsOneWidget);
     expect(find.text('Add Income'), findsOneWidget);
+
+    await tester.tap(find.text('Expenses'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Total Expenses'), findsOneWidget);
+    expect(find.text('Add Expense'), findsOneWidget);
   });
 }

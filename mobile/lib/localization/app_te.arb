@@ -89,4 +89,8 @@
   "requiredDescription": "వివరణను నమోదు చేయండి",
   "invalidDescription": "వివరణ 255 అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి",
   "invalidAmount": "చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి"
+  ,"addExpense": "ఖర్చును జోడించండి"
+  ,"noExpenseRecords": "ఖర్చు రికార్డులు లేవు"
+  ,"deleteExpense": "ఖర్చును తొలగించండి"
+  ,"deleteExpenseConfirmation": "ఈ ఖర్చును తొలగించాలనుకుంటున్నారా?"
 }

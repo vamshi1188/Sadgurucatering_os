@@ -13,18 +13,23 @@ import '../models/event_status.dart';
 import '../../income/controllers/income_controller.dart';
 import '../../income/screens/create_income_screen.dart';
 import '../../income/screens/income_list_screen.dart';
+import '../../expenses/controllers/expense_controller.dart';
+import '../../expenses/screens/create_expense_screen.dart';
+import '../../expenses/screens/expense_list_screen.dart';
 
 class EventWorkspaceScreen extends StatefulWidget {
   const EventWorkspaceScreen({
     required this.controller,
     required this.eventId,
     this.incomeController,
+    this.expenseController,
     super.key,
   });
 
   final EventController controller;
   final int eventId;
   final IncomeController? incomeController;
+  final ExpenseController? expenseController;
 
   @override
   State<EventWorkspaceScreen> createState() => _EventWorkspaceScreenState();
@@ -38,6 +43,7 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
   @override
   void dispose() {
     widget.incomeController?.dispose();
+    widget.expenseController?.dispose();
     super.dispose();
   }
 
@@ -51,6 +57,22 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
       MaterialPageRoute<void>(
         builder: (context) => CreateIncomeScreen(
           controller: incomeController,
+          onCreated: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCreateExpense() async {
+    final expenseController = widget.expenseController;
+    if (expenseController == null) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => CreateExpenseScreen(
+          controller: expenseController,
           onCreated: () => Navigator.of(context).pop(),
         ),
       ),
@@ -149,6 +171,13 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
             return IncomeListScreen(
               controller: widget.incomeController!,
               onAddIncome: _openCreateIncome,
+            );
+          }
+
+          if (_selectedModule == 2 && widget.expenseController != null) {
+            return ExpenseListScreen(
+              controller: widget.expenseController!,
+              onAddExpense: _openCreateExpense,
             );
           }
 

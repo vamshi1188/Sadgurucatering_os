@@ -285,4 +285,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidAmount => 'Enter a valid amount';
+
+  @override
+  String get addExpense => 'Add Expense';
+
+  @override
+  String get noExpenseRecords => 'No expense records';
+
+  @override
+  String get deleteExpense => 'Delete Expense';
+
+  @override
+  String get deleteExpenseConfirmation =>
+      'Are you sure you want to delete this expense?';
 }

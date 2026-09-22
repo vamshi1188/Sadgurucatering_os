@@ -286,4 +286,16 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get invalidAmount => 'చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి';
+
+  @override
+  String get addExpense => 'ఖర్చును జోడించండి';
+
+  @override
+  String get noExpenseRecords => 'ఖర్చు రికార్డులు లేవు';
+
+  @override
+  String get deleteExpense => 'ఖర్చును తొలగించండి';
+
+  @override
+  String get deleteExpenseConfirmation => 'ఈ ఖర్చును తొలగించాలనుకుంటున్నారా?';
 }

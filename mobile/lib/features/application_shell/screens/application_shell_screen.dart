@@ -16,6 +16,8 @@ import '../../events/screens/event_list_screen.dart';
 import '../../events/services/event_service.dart';
 import '../../income/controllers/income_controller.dart';
 import '../../income/services/income_service.dart';
+import '../../expenses/controllers/expense_controller.dart';
+import '../../expenses/services/expense_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
 import 'finance_placeholder_screen.dart';
@@ -93,6 +95,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
           incomeController: IncomeController(
             eventId: event.id,
             service: IncomeService(widget.apiClient),
+          ),
+          expenseController: ExpenseController(
+            eventId: event.id,
+            service: ExpenseService(widget.apiClient),
           ),
         ),
       ),

@@ -631,6 +631,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a valid amount'**
   String get invalidAmount;
+
+  /// No description provided for @addExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Expense'**
+  String get addExpense;
+
+  /// No description provided for @noExpenseRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No expense records'**
+  String get noExpenseRecords;
+
+  /// No description provided for @deleteExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Expense'**
+  String get deleteExpense;
+
+  /// No description provided for @deleteExpenseConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this expense?'**
+  String get deleteExpenseConfirmation;
 }
 
 class _AppLocalizationsDelegate
