@@ -7,6 +7,8 @@ import 'package:sadguru_catering/core/network/api_client.dart';
 import 'package:sadguru_catering/features/dashboard/controllers/dashboard_controller.dart';
 import 'package:sadguru_catering/features/dashboard/models/dashboard_period.dart';
 import 'package:sadguru_catering/features/dashboard/services/dashboard_service.dart';
+import 'package:sadguru_catering/features/dashboard/models/dashboard_date_range.dart';
+import 'package:sadguru_catering/features/dashboard/services/dashboard_date_range_service.dart';
 
 void main() {
   late HttpServer server;
@@ -55,7 +57,12 @@ void main() {
   tearDown(() => server.close(force: true));
 
   DashboardController createController() {
-    return DashboardController(DashboardService(ApiClient(baseUrl: baseUrl)));
+    final fixedNow = DateTime(2026, 9, 11);
+
+    return DashboardController(
+      DashboardService(ApiClient(baseUrl: baseUrl)),
+      dateRangeService: _FixedDashboardDateRangeService(fixedNow),
+    );
   }
 
   test('loads a dashboard summary', () async {
@@ -107,4 +114,20 @@ void main() {
       controller.dispose();
     },
   );
+}
+
+class _FixedDashboardDateRangeService extends DashboardDateRangeService {
+  const _FixedDashboardDateRangeService(this.now);
+
+  final DateTime now;
+
+  @override
+  DashboardDateRange financialRange(FinancialPeriod period, {DateTime? now}) {
+    return super.financialRange(period, now: this.now);
+  }
+
+  @override
+  DashboardDateRange eventRange(EventPeriod period, {DateTime? now}) {
+    return super.eventRange(period, now: this.now);
+  }
 }
