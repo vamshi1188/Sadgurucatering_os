@@ -298,4 +298,7 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get deleteExpenseConfirmation => 'ఈ ఖర్చును తొలగించాలనుకుంటున్నారా?';
+
+  @override
+  String get netProfit => 'నికర లాభం';
 }

@@ -16,6 +16,8 @@ import '../../income/screens/income_list_screen.dart';
 import '../../expenses/controllers/expense_controller.dart';
 import '../../expenses/screens/create_expense_screen.dart';
 import '../../expenses/screens/expense_list_screen.dart';
+import '../../profitability/controllers/profitability_controller.dart';
+import '../../profitability/screens/profitability_screen.dart';
 
 class EventWorkspaceScreen extends StatefulWidget {
   const EventWorkspaceScreen({
@@ -23,6 +25,7 @@ class EventWorkspaceScreen extends StatefulWidget {
     required this.eventId,
     this.incomeController,
     this.expenseController,
+    this.profitabilityController,
     super.key,
   });
 
@@ -30,6 +33,7 @@ class EventWorkspaceScreen extends StatefulWidget {
   final int eventId;
   final IncomeController? incomeController;
   final ExpenseController? expenseController;
+  final ProfitabilityController? profitabilityController;
 
   @override
   State<EventWorkspaceScreen> createState() => _EventWorkspaceScreenState();
@@ -44,6 +48,7 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
   void dispose() {
     widget.incomeController?.dispose();
     widget.expenseController?.dispose();
+    widget.profitabilityController?.dispose();
     super.dispose();
   }
 
@@ -178,6 +183,12 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
             return ExpenseListScreen(
               controller: widget.expenseController!,
               onAddExpense: _openCreateExpense,
+            );
+          }
+
+          if (_selectedModule == 3 && widget.profitabilityController != null) {
+            return ProfitabilityScreen(
+              controller: widget.profitabilityController!,
             );
           }
 

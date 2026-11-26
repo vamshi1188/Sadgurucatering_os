@@ -298,4 +298,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteExpenseConfirmation =>
       'Are you sure you want to delete this expense?';
+
+  @override
+  String get netProfit => 'Net Profit';
 }

@@ -53,6 +53,14 @@ func (s *Service) DeleteExpense(ctx context.Context, eventID int64, entryID int6
 	return s.repository.DeleteExpense(ctx, eventID, entryID)
 }
 
+func (s *Service) DeleteIncome(ctx context.Context, eventID int64, entryID int64) error {
+	if eventID <= 0 || entryID <= 0 {
+		return ErrEntryNotFound
+	}
+
+	return s.repository.DeleteIncome(ctx, eventID, entryID)
+}
+
 func (s *Service) GetFinancials(
 	ctx context.Context,
 	eventID int64,

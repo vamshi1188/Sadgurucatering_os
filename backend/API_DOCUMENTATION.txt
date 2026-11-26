@@ -352,6 +352,20 @@ Possible errors:
 - 404: event not found
 
 
+DELETE /api/v1/events/{event_id}/income/{income_id}
+
+Authentication: Required.
+
+Deletes one income entry belonging to the specified event.
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: income not found or not associated with the event
+- 500: unable to delete income
+
+
 POST /api/v1/events/{id}/expenses
 
 Authentication: Required.

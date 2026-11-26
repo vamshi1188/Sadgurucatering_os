@@ -50,6 +50,19 @@ func expenseIDsFromPath(path string) (int64, int64, bool) {
 	return eventID, entryID, eventErr == nil && entryErr == nil && eventID > 0 && entryID > 0
 }
 
+func incomeIDsFromPath(path string) (int64, int64, bool) {
+	const prefix = "/api/v1/events/"
+	value := strings.TrimPrefix(path, prefix)
+	parts := strings.Split(value, "/")
+	if len(parts) != 3 || parts[0] == "" || parts[1] != "income" || parts[2] == "" {
+		return 0, 0, false
+	}
+
+	eventID, eventErr := strconv.ParseInt(parts[0], 10, 64)
+	entryID, entryErr := strconv.ParseInt(parts[2], 10, 64)
+	return eventID, entryID, eventErr == nil && entryErr == nil && eventID > 0 && entryID > 0
+}
+
 func decodeEntryRequest(w http.ResponseWriter, r *http.Request) (entryRequest, bool) {
 	r.Body = http.MaxBytesReader(w, r.Body, 4096)
 
@@ -155,6 +168,31 @@ func (h *Handler) DeleteExpense(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		response.WriteError(w, appErrors.InternalError("Unable to delete expense"))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) DeleteIncome(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		response.WriteError(w, appErrors.NotFoundError("Resource not found"))
+		return
+	}
+
+	eventID, entryID, ok := incomeIDsFromPath(r.URL.Path)
+	if !ok {
+		response.WriteError(w, appErrors.NotFoundError("Income not found"))
+		return
+	}
+
+	err := h.service.DeleteIncome(r.Context(), eventID, entryID)
+	if err == ErrEntryNotFound {
+		response.WriteError(w, appErrors.NotFoundError("Income not found"))
+		return
+	}
+	if err != nil {
+		response.WriteError(w, appErrors.InternalError("Unable to delete income"))
 		return
 	}
 

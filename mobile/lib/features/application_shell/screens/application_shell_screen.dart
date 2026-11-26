@@ -18,6 +18,8 @@ import '../../income/controllers/income_controller.dart';
 import '../../income/services/income_service.dart';
 import '../../expenses/controllers/expense_controller.dart';
 import '../../expenses/services/expense_service.dart';
+import '../../profitability/controllers/profitability_controller.dart';
+import '../../profitability/services/profitability_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
 import 'finance_placeholder_screen.dart';
@@ -99,6 +101,10 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
           expenseController: ExpenseController(
             eventId: event.id,
             service: ExpenseService(widget.apiClient),
+          ),
+          profitabilityController: ProfitabilityController(
+            eventId: event.id,
+            service: ProfitabilityService(widget.apiClient),
           ),
         ),
       ),

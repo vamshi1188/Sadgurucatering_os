@@ -88,9 +88,10 @@
   "save": "Save",
   "requiredDescription": "Enter a description",
   "invalidDescription": "Description must be 255 characters or fewer",
-  "invalidAmount": "Enter a valid amount"
-  ,"addExpense": "Add Expense"
-  ,"noExpenseRecords": "No expense records"
-  ,"deleteExpense": "Delete Expense"
-  ,"deleteExpenseConfirmation": "Are you sure you want to delete this expense?"
-  }
+  "invalidAmount": "Enter a valid amount",
+  "addExpense": "Add Expense",
+  "noExpenseRecords": "No expense records",
+  "deleteExpense": "Delete Expense",
+  "deleteExpenseConfirmation": "Are you sure you want to delete this expense?",
+  "netProfit": "Net Profit"
+}

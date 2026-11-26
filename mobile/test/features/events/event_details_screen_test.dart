@@ -8,7 +8,109 @@ import 'package:sadguru_catering/features/events/models/event.dart';
 import 'package:sadguru_catering/features/events/models/event_status.dart';
 import 'package:sadguru_catering/features/events/services/event_service_contract.dart';
 import 'package:sadguru_catering/features/events/screens/event_details_screen.dart';
+import 'package:sadguru_catering/features/expenses/controllers/expense_controller.dart';
+import 'package:sadguru_catering/features/expenses/models/expense.dart';
+import 'package:sadguru_catering/features/expenses/services/expense_service_contract.dart';
+import 'package:sadguru_catering/features/income/controllers/income_controller.dart';
+import 'package:sadguru_catering/features/income/models/income.dart';
+import 'package:sadguru_catering/features/income/services/income_service_contract.dart';
+import 'package:sadguru_catering/features/profitability/controllers/profitability_controller.dart';
+import 'package:sadguru_catering/features/profitability/models/profitability.dart';
+import 'package:sadguru_catering/features/profitability/services/profitability_service_contract.dart';
 import 'package:sadguru_catering/localization/app_localizations.dart';
+
+class _FakeIncomeServiceContract implements IncomeServiceContract {
+  _FakeIncomeServiceContract({this.onCreate});
+
+  final VoidCallback? onCreate;
+
+  @override
+  Future<IncomeFinancials> getIncome(int eventId) async {
+    return IncomeFinancials(
+      eventId: eventId,
+      totalIncome: '1000.00',
+      income: [],
+    );
+  }
+
+  @override
+  Future<Income> createIncome({
+    required int eventId,
+    required String description,
+    required String amount,
+  }) async {
+    onCreate?.call();
+    return Income(
+      id: 11,
+      eventId: eventId,
+      description: description,
+      amount: amount,
+      createdAt: DateTime.utc(2026, 9, 3, 10),
+    );
+  }
+
+  @override
+  Future<void> deleteIncome({
+    required int eventId,
+    required int incomeId,
+  }) async {}
+}
+
+class _FakeExpenseServiceContract implements ExpenseServiceContract {
+  _FakeExpenseServiceContract({this.onCreate});
+
+  final VoidCallback? onCreate;
+
+  @override
+  Future<ExpenseFinancials> getExpenses(int eventId) async {
+    return ExpenseFinancials(
+      eventId: eventId,
+      totalExpenses: '250.50',
+      expenses: [],
+    );
+  }
+
+  @override
+  Future<Expense> createExpense({
+    required int eventId,
+    required String description,
+    required String amount,
+  }) async {
+    onCreate?.call();
+    return Expense(
+      id: 21,
+      eventId: eventId,
+      description: description,
+      amount: amount,
+      createdAt: DateTime.utc(2026, 9, 3, 10),
+    );
+  }
+
+  @override
+  Future<void> deleteExpense({
+    required int eventId,
+    required int expenseId,
+  }) async {}
+}
+
+class _FakeProfitabilityServiceContract
+    implements ProfitabilityServiceContract {
+  Profitability profitability = const Profitability(
+    eventId: 42,
+    totalIncome: '1000.00',
+    totalExpenses: '250.50',
+    netProfit: '749.50',
+  );
+  int getCallCount = 0;
+  int? lastRequestedEventId;
+
+  @override
+  Future<Profitability> getProfitability(int eventId) async {
+    getCallCount++;
+    lastRequestedEventId = eventId;
+    return profitability;
+  }
+}
 
 class _FakeEventService implements EventServiceContract {
   _FakeEventService(this.event);
@@ -95,13 +197,22 @@ Event _testEvent({EventStatus status = EventStatus.upcoming}) {
 Widget _buildTestApp({
   required EventController controller,
   required int eventId,
+  IncomeController? incomeController,
+  ExpenseController? expenseController,
+  ProfitabilityController? profitabilityController,
   Locale locale = const Locale('en'),
 }) {
   return MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: locale,
-    home: EventDetailsScreen(controller: controller, eventId: eventId),
+    home: EventDetailsScreen(
+      controller: controller,
+      eventId: eventId,
+      incomeController: incomeController,
+      expenseController: expenseController,
+      profitabilityController: profitabilityController,
+    ),
   );
 }
 
@@ -229,8 +340,50 @@ void main() {
       final service = _FakeEventService(_testEvent());
       final controller = EventController(service);
 
+      final profitabilityService = _FakeProfitabilityServiceContract();
+      final incomeService = _FakeIncomeServiceContract(
+        onCreate: () {
+          profitabilityService.profitability = const Profitability(
+            eventId: 42,
+            totalIncome: '1200.00',
+            totalExpenses: '250.50',
+            netProfit: '949.50',
+          );
+        },
+      );
+      final incomeController = IncomeController(
+        eventId: 42,
+        service: incomeService,
+      );
+
+      final expenseService = _FakeExpenseServiceContract(
+        onCreate: () {
+          profitabilityService.profitability = const Profitability(
+            eventId: 42,
+            totalIncome: '1200.00',
+            totalExpenses: '300.50',
+            netProfit: '899.50',
+          );
+        },
+      );
+      final expenseController = ExpenseController(
+        eventId: 42,
+        service: expenseService,
+      );
+
+      final profitabilityController = ProfitabilityController(
+        eventId: 42,
+        service: profitabilityService,
+      );
+
       await tester.pumpWidget(
-        _buildTestApp(controller: controller, eventId: 42),
+        _buildTestApp(
+          controller: controller,
+          eventId: 42,
+          incomeController: incomeController,
+          expenseController: expenseController,
+          profitabilityController: profitabilityController,
+        ),
       );
 
       await tester.pumpAndSettle();
@@ -238,18 +391,39 @@ void main() {
       await tester.tap(find.text('Income'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Income'), findsNWidgets(2));
+      expect(find.text('Total Income'), findsOneWidget);
       expect(
-        find.text(
-          'This workspace module will be available in a future release.',
+        await incomeController.createIncome(
+          description: 'Final payment',
+          amount: '200.00',
         ),
-        findsOneWidget,
+        isTrue,
+      );
+
+      await tester.tap(find.text('Profitability'));
+      await tester.pumpAndSettle();
+      expect(find.text('₹ 949.50'), findsOneWidget);
+      expect(profitabilityService.getCallCount, 1);
+      expect(profitabilityService.lastRequestedEventId, 42);
+
+      await tester.tap(find.text('Expenses'));
+      await tester.pumpAndSettle();
+      expect(find.text('Total Expenses'), findsOneWidget);
+      expect(
+        await expenseController.createExpense(
+          description: 'Extra supplies',
+          amount: '50.00',
+        ),
+        isTrue,
       );
 
       await tester.tap(find.text('Profitability'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Profitability'), findsNWidgets(2));
+      expect(find.text('Net Profit'), findsOneWidget);
+      expect(find.text('₹ 899.50'), findsOneWidget);
+      expect(profitabilityService.getCallCount, 2);
+      expect(profitabilityService.lastRequestedEventId, 42);
     });
 
     testWidgets('workspace module labels support Telugu', (tester) async {

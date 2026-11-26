@@ -159,6 +159,15 @@ func (r *Router) ServeHTTP(
 			return
 		}
 
+		if strings.Contains(req.URL.Path, "/income/") &&
+			req.Method == http.MethodDelete &&
+			r.auth != nil {
+			r.auth.Require(
+				http.HandlerFunc(r.finance.DeleteIncome),
+			).ServeHTTP(w, req)
+			return
+		}
+
 		if strings.HasSuffix(req.URL.Path, "/income") &&
 			req.Method == http.MethodPost &&
 			r.auth != nil {
