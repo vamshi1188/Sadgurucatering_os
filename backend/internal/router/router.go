@@ -9,16 +9,18 @@ import (
 	appErrors "github.com/vamshi1188/Sadgurucatering_os/backend/internal/errors"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
+	financeReport "github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance/report"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/health"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/response"
 )
 
 type Router struct {
-	apiRoutes map[string]http.Handler
-	auth      *auth.Handler
-	events    *events.Handler
-	finance   *finance.Handler
-	dashboard *dashboard.Handler
+	apiRoutes     map[string]http.Handler
+	auth          *auth.Handler
+	events        *events.Handler
+	finance       *finance.Handler
+	financeReport *financeReport.Handler
+	dashboard     *dashboard.Handler
 }
 
 func New(authHandler ...*auth.Handler) http.Handler {
@@ -52,12 +54,29 @@ func NewWithDashboard(
 	financeHandler *finance.Handler,
 	dashboardHandler *dashboard.Handler,
 ) http.Handler {
+	return NewWithFinanceReport(
+		authHandler,
+		eventHandler,
+		financeHandler,
+		dashboardHandler,
+		nil,
+	)
+}
+
+func NewWithFinanceReport(
+	authHandler *auth.Handler,
+	eventHandler *events.Handler,
+	financeHandler *finance.Handler,
+	dashboardHandler *dashboard.Handler,
+	financeReportHandler *financeReport.Handler,
+) http.Handler {
 	router := &Router{
-		apiRoutes: make(map[string]http.Handler),
-		auth:      authHandler,
-		events:    eventHandler,
-		finance:   financeHandler,
-		dashboard: dashboardHandler,
+		apiRoutes:     make(map[string]http.Handler),
+		auth:          authHandler,
+		events:        eventHandler,
+		finance:       financeHandler,
+		financeReport: financeReportHandler,
+		dashboard:     dashboardHandler,
 	}
 
 	router.registerV1Routes()
@@ -116,6 +135,14 @@ func (r *Router) registerV1Routes() {
 		r.registerAPI(http.MethodGet, "/api/v1/dashboard/summary", r.auth.Require(http.HandlerFunc(r.dashboard.Summary)))
 	}
 
+	if r.auth != nil && r.financeReport != nil {
+		r.registerAPI(
+			http.MethodGet,
+			"/api/v1/finance/summary",
+			r.auth.Require(http.HandlerFunc(r.financeReport.Summary)),
+		)
+	}
+
 	if r.auth != nil && r.events != nil {
 		r.registerAPI(
 			http.MethodPost,
@@ -155,6 +182,15 @@ func (r *Router) ServeHTTP(
 			r.auth != nil {
 			r.auth.Require(
 				http.HandlerFunc(r.finance.DeleteExpense),
+			).ServeHTTP(w, req)
+			return
+		}
+
+		if strings.Contains(req.URL.Path, "/income/") &&
+			req.Method == http.MethodDelete &&
+			r.auth != nil {
+			r.auth.Require(
+				http.HandlerFunc(r.finance.DeleteIncome),
 			).ServeHTTP(w, req)
 			return
 		}

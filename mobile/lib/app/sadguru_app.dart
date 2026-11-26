@@ -82,6 +82,7 @@ class _SadguruAppState extends State<SadguruApp> {
           routes: SadguruRoutes.routes(
             authenticationController: _authenticationController,
             onLocaleChanged: _changeLocale,
+            apiClient: widget.apiClient,
           ),
         );
       },

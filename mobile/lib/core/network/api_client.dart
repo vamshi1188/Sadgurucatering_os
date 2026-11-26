@@ -82,6 +82,14 @@ class ApiClient {
     return _request(() => _dio.patch<dynamic>(path, data: data), parser);
   }
 
+  Future<void> delete(String path) async {
+    try {
+      await _dio.delete<dynamic>(path);
+    } on DioException catch (error) {
+      throw _toApiException(error);
+    }
+  }
+
   Future<ApiResponse<T>> _request<T>(
     Future<Response<dynamic>> Function() request,
     T Function(dynamic data)? parser,

@@ -165,6 +165,28 @@ func (r *Repository) DeleteExpense(ctx context.Context, eventID int64, entryID i
 	return nil
 }
 
+func (r *Repository) DeleteIncome(ctx context.Context, eventID int64, entryID int64) error {
+	result, err := r.db.ExecContext(
+		ctx,
+		`DELETE FROM event_income WHERE id = $1 AND event_id = $2`,
+		entryID,
+		eventID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrEntryNotFound
+	}
+
+	return nil
+}
+
 func (r *Repository) GetFinancials(
 	ctx context.Context,
 	eventID int64,

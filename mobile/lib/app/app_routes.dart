@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/network/api_client.dart';
 import '../core/widgets/loading_view.dart';
 import '../features/authentication/controllers/authentication_controller.dart';
 import '../features/authentication/models/authentication_state.dart';
@@ -16,11 +17,13 @@ class SadguruRoutes {
   static Map<String, WidgetBuilder> routes({
     required AuthenticationController authenticationController,
     required ValueChanged<Locale> onLocaleChanged,
+    required ApiClient apiClient,
   }) {
     return {
       home: (context) => _AuthenticationGate(
         controller: authenticationController,
         onLocaleChanged: onLocaleChanged,
+        apiClient: apiClient,
       ),
       login: (context) => LoginScreen(
         controller: authenticationController,
@@ -34,10 +37,12 @@ class _AuthenticationGate extends StatelessWidget {
   const _AuthenticationGate({
     required this.controller,
     required this.onLocaleChanged,
+    required this.apiClient,
   });
 
   final AuthenticationController controller;
   final ValueChanged<Locale> onLocaleChanged;
+  final ApiClient apiClient;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +66,7 @@ class _AuthenticationGate extends StatelessWidget {
     return ApplicationShellScreen(
       onLocaleChanged: onLocaleChanged,
       authenticationController: controller,
+      apiClient: apiClient,
     );
   }
 }

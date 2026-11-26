@@ -352,6 +352,20 @@ Possible errors:
 - 404: event not found
 
 
+DELETE /api/v1/events/{event_id}/income/{income_id}
+
+Authentication: Required.
+
+Deletes one income entry belonging to the specified event.
+
+Success: 204 No Content
+
+Possible errors:
+- 401: authentication required
+- 404: income not found or not associated with the event
+- 500: unable to delete income
+
+
 POST /api/v1/events/{id}/expenses
 
 Authentication: Required.
@@ -523,6 +537,88 @@ Possible errors:
 - 400: invalid date or from date after to date
 - 401: authentication required
 - 500: unable to retrieve dashboard summary
+
+
+GET /api/v1/finance/summary
+
+Authentication: Required.
+
+Returns business-wide income, expenses, profit, event breakdown, and a
+paginated list of income and expense transactions. Date filters apply to
+transaction created_at timestamps using UTC calendar-day boundaries. The
+start date is inclusive and the end date is exclusive internally (the
+requested to date is included in full).
+
+Query parameters:
+- period: today, this_month (default), last_30_days, custom, or all_time
+- from: required with period=custom; inclusive YYYY-MM-DD
+- to: required with period=custom; inclusive YYYY-MM-DD
+- page: one-based transaction page, default 1, range 1 through 1,000,000
+- page_size: transaction count per page, default 20, range 1 through 100
+
+For today, this_month, and last_30_days, the API calculates the period from
+the current UTC date. last_30_days includes today and the previous 29 days.
+For all_time, from and to are omitted from the response. Custom date filters
+must be supplied together, use valid dates, and from must not be after to.
+from and to are only accepted with period=custom.
+
+Transactions are ordered by created_at descending, then transaction type,
+event ID, and transaction ID for stable pagination. Transactions include
+their event ID and title. Events in the breakdown are those with at least one
+income or expense transaction during the selected period. All monetary values
+are PostgreSQL numeric strings; profit is calculated in PostgreSQL.
+
+Usage:
+
+curl -i -b cookies.txt \
+  "http://localhost:8080/api/v1/finance/summary?period=this_month&page=1&page_size=20"
+
+Success: 200 OK
+
+{
+  "data": {
+    "period": "this_month",
+    "from": "2026-09-01",
+    "to": "2026-09-30",
+    "total_income": "70000.00",
+    "total_expenses": "25000.00",
+    "profit": "45000.00",
+    "events": [
+      {
+        "event_id": 1,
+        "title": "Wedding Reception",
+        "event_date": "2026-09-05",
+        "status": "completed",
+        "total_income": "50000.00",
+        "total_expenses": "18000.00",
+        "profit": "32000.00"
+      }
+    ],
+    "transactions": [
+      {
+        "type": "income",
+        "id": 10,
+        "event_id": 1,
+        "event_title": "Wedding Reception",
+        "description": "Catering advance",
+        "amount": "50000.00",
+        "created_at": "2026-09-03 10:15:00+00"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "page_size": 20,
+      "total": 1,
+      "total_pages": 1
+    }
+  },
+  "meta": {}
+}
+
+Possible errors:
+- 400: invalid period, date range, or pagination parameters
+- 401: authentication required
+- 500: unable to retrieve finance report
 
 
 Common HTTP status codes

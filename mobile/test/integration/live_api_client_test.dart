@@ -6,7 +6,7 @@ void main() {
     'ApiClient reaches the live Sadguru API health endpoint',
     () async {
       final client = ApiClient(
-        baseUrl: 'http://localhost:3000/api/v1',
+        baseUrl: 'http://13.60.199.18:3000/api/v1',
       );
 
       final response = await client.get<Map<String, dynamic>>(

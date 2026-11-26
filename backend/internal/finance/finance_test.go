@@ -123,6 +123,25 @@ func TestRepositoryAddExpense(t *testing.T) {
 	}
 }
 
+func TestRepositoryDeleteIncome(t *testing.T) {
+	repo, mock, cleanup := newFinanceTestRepository(t)
+	defer cleanup()
+
+	mock.ExpectExec(regexp.QuoteMeta(
+		`DELETE FROM event_income WHERE id = $1 AND event_id = $2`,
+	)).
+		WithArgs(int64(10), int64(1)).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	if err := repo.DeleteIncome(context.Background(), 1, 10); err != nil {
+		t.Fatalf("DeleteIncome() error = %v", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("unmet SQL expectations: %v", err)
+	}
+}
+
 func TestRepositoryRejectsInvalidAmount(t *testing.T) {
 	repo, mock, cleanup := newFinanceTestRepository(t)
 	defer cleanup()

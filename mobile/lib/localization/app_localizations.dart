@@ -247,6 +247,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get unknownError;
+
+  /// No description provided for @totalEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Events'**
+  String get totalEvents;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcoming;
+
+  /// No description provided for @running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get running;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @totalIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Income'**
+  String get totalIncome;
+
+  /// No description provided for @totalExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Expenses'**
+  String get totalExpenses;
+
+  /// No description provided for @profit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get profit;
+
+  /// No description provided for @eventsList.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsList;
+
+  /// No description provided for @noEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'No events available'**
+  String get noEvents;
+
+  /// No description provided for @guests.
+  ///
+  /// In en, this message translates to:
+  /// **'Guests'**
+  String get guests;
+
+  /// No description provided for @venue.
+  ///
+  /// In en, this message translates to:
+  /// **'Venue'**
+  String get venue;
+
+  /// No description provided for @income.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get income;
+
+  /// No description provided for @expenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get expenses;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeek;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get thisMonth;
+
+  /// No description provided for @thisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get thisYear;
+
+  /// No description provided for @upcomingEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Events'**
+  String get upcomingEvents;
+
+  /// No description provided for @financialPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Performance'**
+  String get financialPerformance;
+
+  /// No description provided for @todaysOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Overview'**
+  String get todaysOverview;
+
+  /// No description provided for @createEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Event'**
+  String get createEvent;
+
+  /// No description provided for @createEventDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the event details to create a new event.'**
+  String get createEventDescription;
+
+  /// No description provided for @eventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Title'**
+  String get eventTitle;
+
+  /// No description provided for @enterEventTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter event title'**
+  String get enterEventTitle;
+
+  /// No description provided for @eventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Date'**
+  String get eventDate;
+
+  /// No description provided for @selectEventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select event date'**
+  String get selectEventDate;
+
+  /// No description provided for @enterVenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter venue'**
+  String get enterVenue;
+
+  /// No description provided for @enterGuestCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter guest count'**
+  String get enterGuestCount;
+
+  /// No description provided for @invalidGuestCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid guest count.'**
+  String get invalidGuestCount;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @errorCreatingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to create the event. Please try again.'**
+  String get errorCreatingEvent;
+
+  /// No description provided for @eventDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Details'**
+  String get eventDetails;
+
+  /// No description provided for @eventWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Workspace'**
+  String get eventWorkspace;
+
+  /// No description provided for @eventOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get eventOverview;
+
+  /// No description provided for @profitability.
+  ///
+  /// In en, this message translates to:
+  /// **'Profitability'**
+  String get profitability;
+
+  /// No description provided for @workspaceModuleComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'This workspace module will be available in a future release.'**
+  String get workspaceModuleComingSoon;
+
+  /// No description provided for @eventInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Information'**
+  String get eventInformation;
+
+  /// No description provided for @eventRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Record'**
+  String get eventRecord;
+
+  /// No description provided for @eventNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Event not found.'**
+  String get eventNotFound;
+
+  /// No description provided for @eventId.
+  ///
+  /// In en, this message translates to:
+  /// **'Event ID'**
+  String get eventId;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get createdAt;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated At'**
+  String get updatedAt;
+
+  /// No description provided for @startEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Event'**
+  String get startEvent;
+
+  /// No description provided for @completeEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Event'**
+  String get completeEvent;
+
+  /// No description provided for @updatingEventStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating event status...'**
+  String get updatingEventStatus;
+
+  /// No description provided for @errorUpdatingEventStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update event status.'**
+  String get errorUpdatingEventStatus;
+
+  /// No description provided for @deleteEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Event'**
+  String get deleteEvent;
+
+  /// No description provided for @deleteEventConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this event?'**
+  String get deleteEventConfirmation;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deletingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting event...'**
+  String get deletingEvent;
+
+  /// No description provided for @errorDeletingEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to delete event.'**
+  String get errorDeletingEvent;
+
+  /// No description provided for @addIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Income'**
+  String get addIncome;
+
+  /// No description provided for @noIncomeRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No income records'**
+  String get noIncomeRecords;
+
+  /// No description provided for @incomeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Income Details'**
+  String get incomeDetails;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @deleteIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Income'**
+  String get deleteIncome;
+
+  /// No description provided for @deleteIncomeConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this income?'**
+  String get deleteIncomeConfirmation;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @requiredDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a description'**
+  String get requiredDescription;
+
+  /// No description provided for @invalidDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be 255 characters or fewer'**
+  String get invalidDescription;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get invalidAmount;
+
+  /// No description provided for @addExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Expense'**
+  String get addExpense;
+
+  /// No description provided for @noExpenseRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No expense records'**
+  String get noExpenseRecords;
+
+  /// No description provided for @deleteExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Expense'**
+  String get deleteExpense;
+
+  /// No description provided for @deleteExpenseConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this expense?'**
+  String get deleteExpenseConfirmation;
+
+  /// No description provided for @netProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Profit'**
+  String get netProfit;
 }
 
 class _AppLocalizationsDelegate
