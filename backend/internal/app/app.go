@@ -10,6 +10,7 @@ import (
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/db"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/events"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance"
+	financeReport "github.com/vamshi1188/Sadgurucatering_os/backend/internal/finance/report"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/httpserver"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/logger"
 	"github.com/vamshi1188/Sadgurucatering_os/backend/internal/middleware"
@@ -34,7 +35,7 @@ func New(cfg config.Config) *App {
 		Secure:   cfg.Auth.Secure,
 	})
 
-	handler := buildHTTPHandler(authHandler, nil, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
+	handler := buildHTTPHandler(authHandler, nil, nil, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
 
 	return &App{
 		Config: cfg,
@@ -53,10 +54,17 @@ func buildHTTPHandler(
 	eventHandler *events.Handler,
 	financeHandler *finance.Handler,
 	dashboardHandler *dashboard.Handler,
+	financeReportHandler *financeReport.Handler,
 	appLogger *logger.Logger,
 	frontendOrigin string,
 ) http.Handler {
-	handler := router.NewWithDashboard(authHandler, eventHandler, financeHandler, dashboardHandler)
+	handler := router.NewWithFinanceReport(
+		authHandler,
+		eventHandler,
+		financeHandler,
+		dashboardHandler,
+		financeReportHandler,
+	)
 
 	return middleware.Chain(
 		handler,
@@ -114,12 +122,16 @@ func (a *App) Run() error {
 	dashboardRepository := dashboard.NewRepository(a.DB.SQL)
 	dashboardService := dashboard.NewService(dashboardRepository)
 	dashboardHandler := dashboard.NewHandler(dashboardService)
+	financeReportRepository := financeReport.NewRepository(a.DB.SQL)
+	financeReportService := financeReport.NewService(financeReportRepository)
+	financeReportHandler := financeReport.NewHandler(financeReportService)
 
 	handler := buildHTTPHandler(
 		a.Auth,
 		eventHandler,
 		financeHandler,
 		dashboardHandler,
+		financeReportHandler,
 		a.Logger,
 		a.Config.HTTP.FrontendOrigin,
 	)
