@@ -155,6 +155,29 @@ func TestSecurityHeaders(t *testing.T) {
 	}
 }
 
+func TestCORSAllowsBearerAndUserManagementMethods(t *testing.T) {
+	handler := CORS("https://example.test")(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}),
+	)
+	request := httptest.NewRequest(http.MethodOptions, "/api/v1/users/1", nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Header().Get("Access-Control-Allow-Origin") != "https://example.test" {
+		t.Fatal("configured origin was not allowed")
+	}
+	if recorder.Header().Get("Access-Control-Allow-Headers") != "Content-Type, Authorization" {
+		t.Fatal("Authorization header was not allowed")
+	}
+	if recorder.Header().Get("Access-Control-Allow-Methods") != "GET, POST, PATCH, DELETE, OPTIONS" {
+		t.Fatal("DELETE method was not allowed")
+	}
+	if recorder.Code != http.StatusNoContent {
+		t.Fatalf("preflight returned %d", recorder.Code)
+	}
+}
+
 func TestRecovery(t *testing.T) {
 	handler := Recovery(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

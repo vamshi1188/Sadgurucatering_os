@@ -164,17 +164,197 @@ abstract class AppLocalizations {
   /// **'Enter your password'**
   String get enterPassword;
 
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @enterUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username'**
+  String get enterUsername;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get login;
 
+  /// No description provided for @invalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username or password.'**
+  String get invalidCredentials;
+
   /// No description provided for @logout.
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a password between 12 and 72 bytes.'**
+  String get passwordMinLength;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully.'**
+  String get passwordChanged;
+
+  /// No description provided for @userManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get userManagement;
+
+  /// No description provided for @createUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Create user'**
+  String get createUser;
+
+  /// No description provided for @editUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit user'**
+  String get editUser;
+
+  /// No description provided for @role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get role;
+
+  /// No description provided for @ownerRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get ownerRole;
+
+  /// No description provided for @supervisorRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisor'**
+  String get supervisorRole;
+
+  /// No description provided for @accountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Account status'**
+  String get accountStatus;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactive;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPassword;
+
+  /// No description provided for @deleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete user'**
+  String get deleteUser;
+
+  /// No description provided for @deleteUserConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this user?'**
+  String get deleteUserConfirmation;
+
+  /// No description provided for @noUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'No users available'**
+  String get noUsers;
+
+  /// No description provided for @userCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'User created successfully.'**
+  String get userCreated;
+
+  /// No description provided for @userUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'User updated successfully.'**
+  String get userUpdated;
+
+  /// No description provided for @userDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'User deleted successfully.'**
+  String get userDeleted;
+
+  /// No description provided for @temporaryPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary password'**
+  String get temporaryPassword;
+
+  /// No description provided for @currentUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in account'**
+  String get currentUser;
 
   /// No description provided for @dashboard.
   ///
@@ -661,6 +841,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Net Profit'**
   String get netProfit;
+
+  /// No description provided for @financePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance period'**
+  String get financePeriod;
+
+  /// No description provided for @last30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 Days'**
+  String get last30Days;
+
+  /// No description provided for @customRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Range'**
+  String get customRange;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All Time'**
+  String get allTime;
+
+  /// No description provided for @eventFinancialBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Event-wise Breakdown'**
+  String get eventFinancialBreakdown;
+
+  /// No description provided for @recentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get recentTransactions;
+
+  /// No description provided for @noFinanceEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'No financial activity for this period'**
+  String get noFinanceEvents;
+
+  /// No description provided for @noFinanceTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions for this period'**
+  String get noFinanceTransactions;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load More'**
+  String get loadMore;
+
+  /// No description provided for @applicationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Application'**
+  String get applicationSection;
+
+  /// No description provided for @preferencesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferencesSection;
+
+  /// No description provided for @supportSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportSection;
+
+  /// No description provided for @administrationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get administrationSection;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @build.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get build;
+
+  /// No description provided for @appVersionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Version information unavailable'**
+  String get appVersionUnavailable;
+
+  /// No description provided for @shareApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share App'**
+  String get shareApp;
+
+  /// No description provided for @shareAppDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the installable application'**
+  String get shareAppDescription;
+
+  /// No description provided for @shareAppUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The app package is unavailable and no distribution link is configured.'**
+  String get shareAppUnavailable;
+
+  /// No description provided for @shareAppFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open the share sheet. Please try again.'**
+  String get shareAppFailed;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupport;
+
+  /// No description provided for @supportEmailSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Sadguru Catering OS support'**
+  String get supportEmailSubject;
+
+  /// No description provided for @supportEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, I need help with Sadguru Catering OS.'**
+  String get supportEmailBody;
+
+  /// No description provided for @supportEmailUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app is available on this device.'**
+  String get supportEmailUnavailable;
+
+  /// No description provided for @aboutApp.
+  ///
+  /// In en, this message translates to:
+  /// **'About Sadguru Catering OS'**
+  String get aboutApp;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sadguru Catering OS helps manage catering events, finances, and business operations.'**
+  String get aboutDescription;
 }
 
 class _AppLocalizationsDelegate

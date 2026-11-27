@@ -15,12 +15,14 @@ import '../widgets/expense_summary.dart';
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({
     required this.controller,
-    required this.onAddExpense,
+    this.onAddExpense,
+    this.canEdit = true,
     super.key,
   });
 
   final ExpenseController controller;
-  final VoidCallback onAddExpense;
+  final VoidCallback? onAddExpense;
+  final bool canEdit;
 
   @override
   State<ExpenseListScreen> createState() => _ExpenseListScreenState();
@@ -101,14 +103,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                 ),
               ],
               const SizedBox(height: AppSpacing.medium),
-              PrimaryButton(
-                label: l10n.addExpense,
-                icon: Icons.add_rounded,
-                onPressed: widget.controller.isMutating
-                    ? null
-                    : widget.onAddExpense,
-              ),
-              const SizedBox(height: AppSpacing.medium),
+              if (widget.onAddExpense != null) ...[
+                PrimaryButton(
+                  label: l10n.addExpense,
+                  icon: Icons.add_rounded,
+                  onPressed: widget.controller.isMutating
+                      ? null
+                      : widget.onAddExpense,
+                ),
+                const SizedBox(height: AppSpacing.medium),
+              ],
               if (widget.controller.expenses.isEmpty)
                 EmptyView(message: l10n.noExpenseRecords)
               else
@@ -116,7 +120,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                   expenses: widget.controller.expenses,
                   createdAtLabel: l10n.createdAt,
                   deleteLabel: l10n.deleteExpense,
-                  onDelete: _confirmDelete,
+                  onDelete: widget.canEdit ? _confirmDelete : null,
                 ),
             ],
           ),

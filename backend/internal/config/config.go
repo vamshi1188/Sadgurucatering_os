@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -14,9 +15,9 @@ type Config struct {
 	App             AppConfig
 	HTTP            HTTPConfig
 	Database        DatabaseConfig
+	Auth            AuthConfig
 	Redis           RedisConfig
 	Storage         StorageConfig
-	Auth            AuthConfig
 	Migrations      MigrationsConfig
 	ShutdownTimeout time.Duration
 	Environment     string
@@ -48,6 +49,15 @@ type DatabaseConfig struct {
 	URL string `toml:"-"`
 }
 
+type AuthConfig struct {
+	BootstrapOwner BootstrapOwnerConfig `toml:"bootstrap_owner"`
+}
+
+type BootstrapOwnerConfig struct {
+	Username string `toml:"username"`
+	Password string `toml:"password"`
+}
+
 type RedisConfig struct {
 	URL string `toml:"url"`
 }
@@ -57,12 +67,6 @@ type StorageConfig struct {
 	Bucket    string `toml:"bucket"`
 	AccessKey string `toml:"access_key"`
 	SecretKey string `toml:"secret_key"`
-}
-
-type AuthConfig struct {
-	Password string `toml:"password"`
-	Secret   string `toml:"session_secret"`
-	Secure   bool   `toml:"secure"`
 }
 
 type MigrationsConfig struct {
@@ -114,9 +118,9 @@ func LoadFromFile(path string) (Config, error) {
 		App:             raw.App,
 		HTTP:            raw.HTTP,
 		Database:        raw.Database,
+		Auth:            raw.Auth,
 		Redis:           raw.Redis,
 		Storage:         raw.Storage,
-		Auth:            raw.Auth,
 		Migrations:      raw.Migrations,
 		ShutdownTimeout: shutdownTimeout,
 		Environment:     raw.App.Environment,
@@ -227,6 +231,21 @@ func (c Config) Validate() error {
 
 	if c.Environment == "production" && c.Database.URL == "" {
 		return errors.New("database configuration is required in production")
+	}
+
+	if strings.TrimSpace(c.Auth.BootstrapOwner.Username) == "" {
+		return errors.New("auth.bootstrap_owner.username cannot be empty")
+	}
+
+	if c.Auth.BootstrapOwner.Password == "" {
+		return errors.New("auth.bootstrap_owner.password cannot be empty")
+	}
+
+	if c.Environment == "production" &&
+		len([]byte(c.Auth.BootstrapOwner.Password)) < 12 {
+		return errors.New(
+			"auth.bootstrap_owner.password must be at least 12 bytes in production",
+		)
 	}
 
 	return nil

@@ -13,6 +13,11 @@ Product requirements, business concepts and product decisions.
 
 Documentation for individual development versions.
 
+### architecture/
+
+Architecture documentation, including
+[authentication and authorization](architecture/authentication-and-authorization.md).
+
 ### decisions/
 
 Architecture and engineering decision records.

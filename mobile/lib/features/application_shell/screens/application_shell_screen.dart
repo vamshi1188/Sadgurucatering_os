@@ -14,16 +14,21 @@ import '../../events/screens/event_workspace_screen.dart';
 import '../../events/screens/create_event_screen.dart';
 import '../../events/screens/event_list_screen.dart';
 import '../../events/services/event_service.dart';
+import '../../finance/controllers/finance_controller.dart';
+import '../../finance/screens/finance_screen.dart';
+import '../../finance/services/finance_service.dart';
 import '../../income/controllers/income_controller.dart';
 import '../../income/services/income_service.dart';
 import '../../expenses/controllers/expense_controller.dart';
 import '../../expenses/services/expense_service.dart';
 import '../../profitability/controllers/profitability_controller.dart';
 import '../../profitability/services/profitability_service.dart';
+import '../../users/controllers/user_management_controller.dart';
+import '../../users/screens/user_management_screen.dart';
+import '../../users/services/user_management_service.dart';
 import '../models/application_tab.dart';
 import '../widgets/application_bottom_navigation.dart';
-import 'finance_placeholder_screen.dart';
-import 'settings_placeholder_screen.dart';
+import 'settings_screen.dart';
 
 class ApplicationShellScreen extends StatefulWidget {
   const ApplicationShellScreen({
@@ -45,6 +50,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   ApplicationTab _currentTab = ApplicationTab.dashboard;
   late final DashboardController _dashboardController;
   late final EventController _eventController;
+  late final FinanceController _financeController;
 
   @override
   void initState() {
@@ -53,6 +59,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
       DashboardService(widget.apiClient),
     );
     _eventController = EventController(EventService(widget.apiClient));
+    _financeController = FinanceController(FinanceService(widget.apiClient));
   }
 
   void _selectTab(ApplicationTab tab) {
@@ -66,13 +73,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   }
 
   Future<void> _logout() async {
-    final success = await widget.authenticationController.logout();
-
-    if (!mounted || !success) {
-      return;
-    }
-
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    await widget.authenticationController.logout();
   }
 
   Future<void> _openCreateEvent() async {
@@ -94,6 +95,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
         builder: (context) => EventWorkspaceScreen(
           controller: _eventController,
           eventId: event.id,
+          canEdit: widget.authenticationController.state.user?.isOwner ?? false,
           incomeController: IncomeController(
             eventId: event.id,
             service: IncomeService(widget.apiClient),
@@ -118,13 +120,32 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
       case ApplicationTab.events:
         return EventListScreen(
           controller: _eventController,
-          onCreateEvent: _openCreateEvent,
+          onCreateEvent:
+              widget.authenticationController.state.user?.isOwner == true
+              ? _openCreateEvent
+              : null,
           onEventTap: _openEventDetails,
         );
       case ApplicationTab.finance:
-        return const FinancePlaceholderScreen();
+        return FinanceScreen(controller: _financeController);
       case ApplicationTab.settings:
-        return const SettingsPlaceholderScreen();
+        return SettingsScreen(
+          onLocaleChanged: widget.onLocaleChanged,
+          canManageUsers:
+              widget.authenticationController.state.user?.isOwner == true,
+          onManageUsers: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => UserManagementScreen(
+                  controller: UserManagementController(
+                    UserManagementService(widget.apiClient),
+                  ),
+                  currentUserId: widget.authenticationController.state.user!.id,
+                ),
+              ),
+            );
+          },
+        );
     }
   }
 
@@ -132,6 +153,7 @@ class _ApplicationShellScreenState extends State<ApplicationShellScreen> {
   void dispose() {
     _dashboardController.dispose();
     _eventController.dispose();
+    _financeController.dispose();
     super.dispose();
   }
 

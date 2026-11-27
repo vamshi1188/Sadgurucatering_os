@@ -93,6 +93,16 @@ func (r *Router) registerV1Routes() {
 
 	if r.auth != nil {
 		r.registerAPI(
+			http.MethodGet,
+			"/api/v1/users",
+			r.auth.RequireOwner(http.HandlerFunc(r.auth.ListUsers)),
+		)
+		r.registerAPI(
+			http.MethodPost,
+			"/api/v1/users",
+			r.auth.RequireOwner(http.HandlerFunc(r.auth.CreateUser)),
+		)
+		r.registerAPI(
 			http.MethodPost,
 			"/api/v1/auth/login",
 			http.HandlerFunc(r.auth.Login),
@@ -109,19 +119,25 @@ func (r *Router) registerV1Routes() {
 			"/api/v1/auth/logout",
 			http.HandlerFunc(r.auth.Logout),
 		)
+
+		r.registerAPI(
+			http.MethodPost,
+			"/api/v1/auth/change-password",
+			r.auth.Require(http.HandlerFunc(r.auth.ChangePassword)),
+		)
 	}
 
 	if r.auth != nil && r.finance != nil {
 		r.registerAPI(
 			http.MethodPost,
 			"/api/v1/events/{id}/income",
-			r.auth.Require(http.HandlerFunc(r.finance.AddIncome)),
+			r.auth.RequireOwner(http.HandlerFunc(r.finance.AddIncome)),
 		)
 
 		r.registerAPI(
 			http.MethodPost,
 			"/api/v1/events/{id}/expenses",
-			r.auth.Require(http.HandlerFunc(r.finance.AddExpense)),
+			r.auth.RequireOwner(http.HandlerFunc(r.finance.AddExpense)),
 		)
 
 		r.registerAPI(
@@ -147,7 +163,7 @@ func (r *Router) registerV1Routes() {
 		r.registerAPI(
 			http.MethodPost,
 			"/api/v1/events",
-			r.auth.Require(http.HandlerFunc(r.events.Create)),
+			r.auth.RequireOwner(http.HandlerFunc(r.events.Create)),
 		)
 
 		r.registerAPI(
@@ -175,12 +191,30 @@ func (r *Router) ServeHTTP(
 		return
 	}
 
+	if r.auth != nil && strings.HasPrefix(req.URL.Path, "/api/v1/users/") {
+		if strings.HasSuffix(req.URL.Path, "/reset-password") &&
+			req.Method == http.MethodPost {
+			r.auth.RequireOwner(http.HandlerFunc(r.auth.ResetPassword)).ServeHTTP(w, req)
+			return
+		}
+		if !strings.Contains(strings.TrimPrefix(req.URL.Path, "/api/v1/users/"), "/") {
+			switch req.Method {
+			case http.MethodPatch:
+				r.auth.RequireOwner(http.HandlerFunc(r.auth.UpdateUser)).ServeHTTP(w, req)
+				return
+			case http.MethodDelete:
+				r.auth.RequireOwner(http.HandlerFunc(r.auth.DeleteUser)).ServeHTTP(w, req)
+				return
+			}
+		}
+	}
+
 	if r.finance != nil &&
 		strings.HasPrefix(req.URL.Path, "/api/v1/events/") {
 		if strings.Contains(req.URL.Path, "/expenses/") &&
 			req.Method == http.MethodDelete &&
 			r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.finance.DeleteExpense),
 			).ServeHTTP(w, req)
 			return
@@ -189,7 +223,7 @@ func (r *Router) ServeHTTP(
 		if strings.Contains(req.URL.Path, "/income/") &&
 			req.Method == http.MethodDelete &&
 			r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.finance.DeleteIncome),
 			).ServeHTTP(w, req)
 			return
@@ -198,7 +232,7 @@ func (r *Router) ServeHTTP(
 		if strings.HasSuffix(req.URL.Path, "/income") &&
 			req.Method == http.MethodPost &&
 			r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.finance.AddIncome),
 			).ServeHTTP(w, req)
 			return
@@ -207,7 +241,7 @@ func (r *Router) ServeHTTP(
 		if strings.HasSuffix(req.URL.Path, "/expenses") &&
 			req.Method == http.MethodPost &&
 			r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.finance.AddExpense),
 			).ServeHTTP(w, req)
 			return
@@ -226,7 +260,7 @@ func (r *Router) ServeHTTP(
 	if r.events != nil &&
 		strings.HasPrefix(req.URL.Path, "/api/v1/events/") {
 		if req.Method == http.MethodDelete && r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.events.Delete),
 			).ServeHTTP(w, req)
 			return
@@ -252,7 +286,7 @@ func (r *Router) ServeHTTP(
 		strings.HasPrefix(req.URL.Path, "/api/v1/events/") &&
 		strings.HasSuffix(req.URL.Path, "/status") {
 		if req.Method == http.MethodPatch && r.auth != nil {
-			r.auth.Require(
+			r.auth.RequireOwner(
 				http.HandlerFunc(r.events.UpdateStatus),
 			).ServeHTTP(w, req)
 			return

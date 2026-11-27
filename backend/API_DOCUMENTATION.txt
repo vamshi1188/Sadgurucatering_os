@@ -28,20 +28,21 @@ Errors use this envelope:
 Authentication
 --------------
 
-The login endpoint creates an HTTP-only cookie named sadguru_session. Send this
-cookie with every protected request. The frontend uses credentials: include.
+Login returns an opaque bearer token. Store it in secure client-side storage
+and send it in the Authorization header. Tokens expire after 24 hours and are
+stored only as hashes by the backend. The login endpoint does not set a cookie.
 
-The cookie is valid for 24 hours. Authentication is session-cookie based; this
-API does not use a bearer token.
+The initial owner account is created only when the users table is empty. Its
+username and password come from `[auth.bootstrap_owner]` in the backend
+configuration. The example config uses `admin` / `admin123` for development;
+production configuration must use a password of at least 12 bytes. The account
+is marked to require a password change at first login.
 
-For curl, preserve the cookie between requests:
-
-curl -i -c cookies.txt \
-  -H "Content-Type: application/json" \
-  -d '{"password":"YOUR_PASSWORD"}' \
-  http://localhost:8080/api/v1/auth/login
-
-curl -i -b cookies.txt http://localhost:8080/api/v1/events
+Protected API operations are available to active owners and supervisors. Reads
+are available to both roles; event and finance writes and user administration
+require the owner role. Authentication accepts bearer tokens only. Accounts
+marked `must_change_password` must change
+their password before using other protected API operations.
 
 
 1. HEALTH
@@ -74,29 +75,38 @@ Authentication: Not required.
 Request body:
 
 {
-  "password": "YOUR_PASSWORD"
+  "username": "admin",
+  "password": "admin123"
 }
 
 Usage:
 
-curl -i -c cookies.txt \
+curl -i \
   -H "Content-Type: application/json" \
-  -d '{"password":"YOUR_PASSWORD"}' \
+  -d '{"username":"admin","password":"admin123"}' \
   http://localhost:8080/api/v1/auth/login
 
 Success: 200 OK
-The response also sets the sadguru_session cookie.
+The response contains the bearer token and public user information. No
+Set-Cookie header is returned.
 
 {
   "data": {
-    "authenticated": true
+    "token": "OPAQUE_TOKEN",
+    "user": {
+      "id": 1,
+      "username": "admin",
+      "role": "owner",
+      "must_change_password": true
+    }
   }
 }
 
 Possible errors:
 - 400: invalid or unreadable request body
-- 401: invalid password
-- 500: authentication is not configured or a session cannot be created
+- 401: invalid username or password
+- 429: too many login attempts
+- 500: a session cannot be created
 
 
 GET /api/v1/auth/session
@@ -105,13 +115,19 @@ Authentication: Required.
 
 Usage:
 
-curl -i -b cookies.txt http://localhost:8080/api/v1/auth/session
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
+  http://localhost:8080/api/v1/auth/session
 
 Success: 200 OK
 
 {
   "data": {
-    "authenticated": true
+    "user": {
+      "id": 1,
+      "username": "admin",
+      "role": "owner",
+      "must_change_password": true
+    }
   }
 }
 
@@ -119,24 +135,76 @@ Possible errors:
 - 401: authentication required or session is invalid
 
 
+POST /api/v1/auth/change-password
+
+Authentication: Required.
+
+Request body:
+
+{
+  "current_password": "admin123",
+  "new_password": "A-strong-new-password"
+}
+
+The new password must be 12-72 bytes. Other active sessions are revoked while
+the current session remains valid.
+
 POST /api/v1/auth/logout
 
-Authentication: Not required. The endpoint clears the session cookie.
+Authentication: Not required. A supplied bearer token is revoked.
 
 Usage:
 
-curl -i -b cookies.txt -X POST http://localhost:8080/api/v1/auth/logout
+curl -i -X POST -H "Authorization: Bearer OPAQUE_TOKEN" \
+  http://localhost:8080/api/v1/auth/logout
 
-Success: 200 OK
+Success: 200 OK, `{"data":{"authenticated":false}}`.
+
+
+3. USER MANAGEMENT
+------------------
+
+All user management routes require an active owner session.
+
+GET /api/v1/users
+
+Lists users. User responses include id, username, role, is_active,
+must_change_password, and created_at.
+
+POST /api/v1/users
+
+Creates an active user. Passwords must be 12-72 bytes. The new user is
+required to change the password on first login.
 
 {
-  "data": {
-    "authenticated": false
-  }
+  "username": "supervisor-one",
+  "role": "supervisor",
+  "password": "An-initial-password"
 }
 
+PATCH /api/v1/users/{id}
 
-3. EVENTS
+Updates one or more of `username`, `role` (`owner` or `supervisor`), and
+`is_active`.
+The last active owner cannot be demoted or deactivated.
+
+DELETE /api/v1/users/{id}
+
+Deletes a user and revokes their sessions. The last active owner cannot be
+deleted.
+
+POST /api/v1/users/{id}/reset-password
+
+Request body: `{"password":"A-new-temporary-password"}`. This requires a
+12-72 byte password, marks the user to change it at next login, revokes all of
+that user's sessions, and returns 200 with `{"data":{"reset":true}}`.
+
+Successful create returns 201, update returns 200 with the updated user, and
+delete returns 204.
+Administrative changes are written to the user audit log.
+
+
+4. EVENTS
 ---------
 
 Event statuses are:
@@ -165,7 +233,7 @@ Request body:
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "title":"Wedding Reception",
@@ -203,7 +271,7 @@ Returns all events ordered by event date ascending and ID ascending.
 
 Usage:
 
-curl -i -b cookies.txt http://localhost:8080/api/v1/events
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" http://localhost:8080/api/v1/events
 
 Success: 200 OK
 
@@ -235,7 +303,7 @@ Returns one event by its positive integer ID.
 
 Usage:
 
-curl -i -b cookies.txt http://localhost:8080/api/v1/events/1
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" http://localhost:8080/api/v1/events/1
 
 Success: 200 OK
 The response data is one event object with the same fields as the event list.
@@ -254,7 +322,7 @@ Deletes an event and its associated income and expense entries.
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -X DELETE \
   http://localhost:8080/api/v1/events/1
 
@@ -280,7 +348,7 @@ Request body:
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -X PATCH \
   -H "Content-Type: application/json" \
   -d '{"status":"running"}' \
@@ -302,7 +370,7 @@ Possible errors:
 - 404: event not found or invalid event ID
 
 
-4. EVENT FINANCE
+5. EVENT FINANCE
 ----------------
 
 Money amounts are stored and returned as decimal strings. Do not calculate
@@ -324,7 +392,7 @@ Request body:
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"description":"Catering advance","amount":"50000.00"}' \
   http://localhost:8080/api/v1/events/1/income
@@ -381,7 +449,7 @@ Request body:
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"description":"Food supplies","amount":"20000.00"}' \
   http://localhost:8080/api/v1/events/1/expenses
@@ -403,7 +471,7 @@ Deletes one expense entry belonging to the specified event.
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   -X DELETE \
   http://localhost:8080/api/v1/events/1/expenses/10
 
@@ -423,7 +491,7 @@ Returns the event's aggregated financials and all income and expense entries.
 
 Usage:
 
-curl -i -b cookies.txt http://localhost:8080/api/v1/events/1/financials
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" http://localhost:8080/api/v1/events/1/financials
 
 Success: 200 OK
 
@@ -462,7 +530,7 @@ Possible errors:
 - 500: unable to retrieve event financials
 
 
-5. DASHBOARD REPORTING
+6. DASHBOARD REPORTING
 ----------------------
 
 GET /api/v1/dashboard/summary
@@ -482,12 +550,12 @@ provided, to defaults to the same date.
 
 Usage for today:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   "http://localhost:8080/api/v1/dashboard/summary?from=2026-09-03&to=2026-09-03"
 
 Usage for a date range:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   "http://localhost:8080/api/v1/dashboard/summary?from=2026-09-01&to=2026-09-30"
 
 Success: 200 OK
@@ -570,7 +638,7 @@ are PostgreSQL numeric strings; profit is calculated in PostgreSQL.
 
 Usage:
 
-curl -i -b cookies.txt \
+curl -i -H "Authorization: Bearer OPAQUE_TOKEN" \
   "http://localhost:8080/api/v1/finance/summary?period=this_month&page=1&page_size=20"
 
 Success: 200 OK

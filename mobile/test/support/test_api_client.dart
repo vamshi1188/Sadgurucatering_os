@@ -3,18 +3,26 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:sadguru_catering/core/network/api_client.dart';
 
-ApiClient createTestApiClient({bool includeTestEvent = false}) {
+ApiClient createTestApiClient({
+  bool includeTestEvent = false,
+  void Function(RequestOptions options)? onRequest,
+}) {
   final dio = Dio(BaseOptions(baseUrl: 'http://test.invalid'));
   dio.httpClientAdapter = _DashboardResponseAdapter(
     includeTestEvent: includeTestEvent,
+    onRequest: onRequest,
   );
   return ApiClient(baseUrl: 'http://test.invalid', dio: dio);
 }
 
 class _DashboardResponseAdapter implements HttpClientAdapter {
-  _DashboardResponseAdapter({required this.includeTestEvent});
+  _DashboardResponseAdapter({
+    required this.includeTestEvent,
+    required this.onRequest,
+  });
 
   final bool includeTestEvent;
+  final void Function(RequestOptions options)? onRequest;
 
   static const _eventJson = '''
 {
@@ -35,15 +43,25 @@ class _DashboardResponseAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    onRequest?.call(options);
     final isEventListRequest = options.path == '/events';
     final isEventDetailsRequest =
         options.path.startsWith('/events/') && options.path != '/events/';
     final isFinancialsRequest = options.path.endsWith('/financials');
+    final isFinanceReportRequest = options.path.endsWith('/finance/summary');
+    final isUserListRequest = options.path == '/users';
 
     final String responseBody;
 
     if (includeTestEvent && isEventListRequest) {
       responseBody = '{"data":[$_eventJson]}';
+    } else if (isFinanceReportRequest) {
+      responseBody =
+          '{"data":{"period":"this_month","from":"2026-09-01",'
+          '"to":"2026-09-30","total_income":"0.00",'
+          '"total_expenses":"0.00","profit":"0.00","events":[],'
+          '"transactions":[],"pagination":{"page":1,"page_size":20,'
+          '"total":0,"total_pages":0}},"meta":{}}';
     } else if (includeTestEvent && isFinancialsRequest) {
       responseBody =
           '{"data":{"event_id":42,"total_income":"0.00",'
@@ -51,6 +69,8 @@ class _DashboardResponseAdapter implements HttpClientAdapter {
           '"income":[],"expenses":[]}}';
     } else if (includeTestEvent && isEventDetailsRequest) {
       responseBody = '{"data":$_eventJson}';
+    } else if (isUserListRequest) {
+      responseBody = '{"data":[]}';
     } else if (options.path.endsWith('/events')) {
       responseBody = '{"data":[]}';
     } else {

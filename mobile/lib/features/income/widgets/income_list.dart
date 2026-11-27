@@ -8,14 +8,14 @@ class IncomeList extends StatelessWidget {
     required this.incomes,
     required this.createdAtLabel,
     required this.deleteLabel,
-    required this.onDelete,
+    this.onDelete,
     super.key,
   });
 
   final List<Income> incomes;
   final String createdAtLabel;
   final String deleteLabel;
-  final ValueChanged<Income> onDelete;
+  final ValueChanged<Income>? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class IncomeList extends StatelessWidget {
             income: income,
             createdAtLabel: createdAtLabel,
             deleteLabel: deleteLabel,
-            onDelete: () => onDelete(income),
+            onDelete: onDelete == null ? null : () => onDelete!(income),
           ),
           const SizedBox(height: 8),
         ],

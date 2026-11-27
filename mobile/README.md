@@ -24,6 +24,21 @@ The application supports:
 - English
 - Telugu
 
+## Sharing the Android application
+
+On Android, **Share App** copies the currently installed APK into the app's
+cache and shares that APK through the native Android share sheet. If the
+installed APK cannot be read, configure an HTTPS download URL for a published
+installable APK. Pass it at build time:
+
+```sh
+flutter build apk --dart-define=APP_DISTRIBUTION_URL=https://example.com/downloads/sadguru-catering-os.apk
+```
+
+The configured URL is used only when sharing the installed APK is unavailable.
+Without an installed APK or a valid HTTPS distribution URL, the app displays an
+explicit localized error rather than sharing a text-only message.
+
 ## Technology
 
 - Flutter

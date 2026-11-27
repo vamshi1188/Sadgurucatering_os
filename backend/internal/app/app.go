@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -29,11 +30,7 @@ type App struct {
 func New(cfg config.Config) *App {
 	appLogger := logger.New(nil, cfg.LogLevel)
 
-	authHandler := auth.New(auth.Config{
-		Password: cfg.Auth.Password,
-		Secret:   cfg.Auth.Secret,
-		Secure:   cfg.Auth.Secure,
-	})
+	authHandler := auth.New()
 
 	handler := buildHTTPHandler(authHandler, nil, nil, nil, nil, appLogger, cfg.HTTP.FrontendOrigin)
 
@@ -111,6 +108,16 @@ func (a *App) Run() error {
 		"database migrations completed",
 		"path", a.Config.Migrations.Path,
 	)
+
+	a.Auth = auth.New(auth.NewRepository(a.DB.SQL))
+	if err := a.Auth.Bootstrap(
+		context.Background(),
+		a.Config.Auth.BootstrapOwner.Username,
+		a.Config.Auth.BootstrapOwner.Password,
+	); err != nil {
+		_ = a.DB.Close()
+		return fmt.Errorf("bootstrap owner user: %w", err)
+	}
 
 	eventRepository := events.NewRepository(a.DB.SQL)
 	eventService := events.NewService(eventRepository)

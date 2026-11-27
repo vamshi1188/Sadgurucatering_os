@@ -2,11 +2,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sadguru_catering/core/network/api_client.dart';
 import 'package:sadguru_catering/core/network/api_exception.dart';
+
+import '../../support/fake_token_storage.dart';
 
 void main() {
   late HttpServer server;
@@ -87,6 +88,19 @@ void main() {
             request.response.statusCode = HttpStatus.unauthorized;
             request.response.write(
               '{"error":{"code":"UNAUTHORIZED","message":"Cookie missing"}}',
+            );
+          }
+
+        case '/check-auth':
+          request.response.headers.contentType = ContentType.json;
+          if (request.headers.value('authorization') ==
+              'Bearer secure-session-token') {
+            request.response.statusCode = HttpStatus.ok;
+            request.response.write('{"data":{"authenticated":true}}');
+          } else {
+            request.response.statusCode = HttpStatus.unauthorized;
+            request.response.write(
+              '{"error":{"code":"UNAUTHORIZED","message":"Token missing"}}',
             );
           }
 
@@ -222,10 +236,18 @@ void main() {
     final client = ApiClient(baseUrl: baseUrl);
 
     final cases = <String, List<Object>>{
-      '/error': [HttpStatus.unauthorized, 'UNAUTHORIZED', 'Authentication required'],
+      '/error': [
+        HttpStatus.unauthorized,
+        'UNAUTHORIZED',
+        'Authentication required',
+      ],
       '/forbidden': [HttpStatus.forbidden, 'FORBIDDEN', 'Access denied'],
       '/not-found': [HttpStatus.notFound, 'NOT_FOUND', 'Resource not found'],
-      '/server-error': [HttpStatus.internalServerError, 'SERVER_ERROR', 'Server failure'],
+      '/server-error': [
+        HttpStatus.internalServerError,
+        'SERVER_ERROR',
+        'Server failure',
+      ],
     };
 
     for (final entry in cases.entries) {
@@ -241,22 +263,16 @@ void main() {
     }
   });
 
-  test('persists session cookie between requests', () async {
-    final client = ApiClient(baseUrl: baseUrl, cookieJar: CookieJar());
+  test('sends bearer token from secure storage', () async {
+    final storage = FakeTokenStorage()..token = 'secure-session-token';
+    final client = ApiClient(baseUrl: baseUrl, secureStorage: storage);
 
-    final loginResponse = await client.get<Map<String, dynamic>>(
-      '/set-cookie',
+    final response = await client.get<Map<String, dynamic>>(
+      '/check-auth',
       parser: (data) => Map<String, dynamic>.from(data as Map),
     );
 
-    expect(loginResponse.data['authenticated'], true);
-
-    final sessionResponse = await client.get<Map<String, dynamic>>(
-      '/check-cookie',
-      parser: (data) => Map<String, dynamic>.from(data as Map),
-    );
-
-    expect(sessionResponse.data['cookie_received'], true);
+    expect(response.data['authenticated'], true);
   });
 }
 
@@ -277,10 +293,7 @@ class _ThrowingAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    throw DioException(
-      requestOptions: options,
-      type: type,
-    );
+    throw DioException(requestOptions: options, type: type);
   }
 
   @override

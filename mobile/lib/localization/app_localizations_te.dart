@@ -43,10 +43,102 @@ class AppLocalizationsTe extends AppLocalizations {
   String get enterPassword => 'మీ పాస్‌వర్డ్ నమోదు చేయండి';
 
   @override
+  String get username => 'వినియోగదారు పేరు';
+
+  @override
+  String get enterUsername => 'మీ వినియోగదారు పేరును నమోదు చేయండి';
+
+  @override
+  String get showPassword => 'పాస్‌వర్డ్ చూపించు';
+
+  @override
+  String get hidePassword => 'పాస్‌వర్డ్ దాచు';
+
+  @override
   String get login => 'లాగిన్';
 
   @override
+  String get invalidCredentials => 'వినియోగదారు పేరు లేదా పాస్‌వర్డ్ తప్పు.';
+
+  @override
   String get logout => 'లాగ్ అవుట్';
+
+  @override
+  String get changePassword => 'పాస్‌వర్డ్ మార్చండి';
+
+  @override
+  String get currentPassword => 'ప్రస్తుత పాస్‌వర్డ్';
+
+  @override
+  String get newPassword => 'కొత్త పాస్‌వర్డ్';
+
+  @override
+  String get confirmPassword => 'పాస్‌వర్డ్ నిర్ధారించండి';
+
+  @override
+  String get passwordMismatch => 'పాస్‌వర్డ్‌లు సరిపోలలేదు.';
+
+  @override
+  String get passwordMinLength =>
+      '12 నుండి 72 బైట్ల మధ్య పాస్‌వర్డ్ ఉపయోగించండి.';
+
+  @override
+  String get passwordChanged => 'పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది.';
+
+  @override
+  String get userManagement => 'వినియోగదారుల నిర్వహణ';
+
+  @override
+  String get createUser => 'వినియోగదారుని సృష్టించండి';
+
+  @override
+  String get editUser => 'వినియోగదారుని సవరించండి';
+
+  @override
+  String get role => 'పాత్ర';
+
+  @override
+  String get ownerRole => 'యజమాని';
+
+  @override
+  String get supervisorRole => 'పర్యవేక్షకుడు';
+
+  @override
+  String get accountStatus => 'ఖాతా స్థితి';
+
+  @override
+  String get active => 'సక్రియం';
+
+  @override
+  String get inactive => 'నిష్క్రియం';
+
+  @override
+  String get resetPassword => 'పాస్‌వర్డ్ రీసెట్ చేయండి';
+
+  @override
+  String get deleteUser => 'వినియోగదారుని తొలగించండి';
+
+  @override
+  String get deleteUserConfirmation =>
+      'ఈ వినియోగదారుని తొలగించాలనుకుంటున్నారా?';
+
+  @override
+  String get noUsers => 'వినియోగదారులు అందుబాటులో లేరు';
+
+  @override
+  String get userCreated => 'వినియోగదారు విజయవంతంగా సృష్టించబడ్డారు.';
+
+  @override
+  String get userUpdated => 'వినియోగదారు విజయవంతంగా నవీకరించబడ్డారు.';
+
+  @override
+  String get userDeleted => 'వినియోగదారు విజయవంతంగా తొలగించబడ్డారు.';
+
+  @override
+  String get temporaryPassword => 'తాత్కాలిక పాస్‌వర్డ్';
+
+  @override
+  String get currentUser => 'సైన్ ఇన్ చేసిన ఖాతా';
 
   @override
   String get dashboard => 'డాష్‌బోర్డ్';
@@ -301,4 +393,88 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get netProfit => 'నికర లాభం';
+
+  @override
+  String get financePeriod => 'ఫైనాన్స్ కాలం';
+
+  @override
+  String get last30Days => 'గత 30 రోజులు';
+
+  @override
+  String get customRange => 'అనుకూల తేదీ పరిధి';
+
+  @override
+  String get allTime => 'మొత్తం కాలం';
+
+  @override
+  String get eventFinancialBreakdown => 'ఈవెంట్ వారీ వివరాలు';
+
+  @override
+  String get recentTransactions => 'ఇటీవలి లావాదేవీలు';
+
+  @override
+  String get noFinanceEvents => 'ఈ కాలానికి ఆర్థిక కార్యకలాపాలు లేవు';
+
+  @override
+  String get noFinanceTransactions => 'ఈ కాలానికి లావాదేవీలు లేవు';
+
+  @override
+  String get loadMore => 'మరిన్ని చూపించండి';
+
+  @override
+  String get applicationSection => 'అప్లికేషన్';
+
+  @override
+  String get preferencesSection => 'ప్రాధాన్యతలు';
+
+  @override
+  String get supportSection => 'సహాయం';
+
+  @override
+  String get administrationSection => 'నిర్వహణ';
+
+  @override
+  String get version => 'వెర్షన్';
+
+  @override
+  String get build => 'బిల్డ్';
+
+  @override
+  String get appVersionUnavailable => 'వెర్షన్ సమాచారం అందుబాటులో లేదు';
+
+  @override
+  String get shareApp => 'యాప్‌ను షేర్ చేయండి';
+
+  @override
+  String get shareAppDescription =>
+      'ఇన్‌స్టాల్ చేయగల అప్లికేషన్‌ను షేర్ చేయండి';
+
+  @override
+  String get shareAppUnavailable =>
+      'యాప్ ప్యాకేజీ అందుబాటులో లేదు, పంపిణీ లింక్ కూడా కాన్ఫిగర్ చేయలేదు.';
+
+  @override
+  String get shareAppFailed =>
+      'షేర్ షీట్‌ను తెరవడం సాధ్యపడలేదు. మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get contactSupport => 'సహాయాన్ని సంప్రదించండి';
+
+  @override
+  String get supportEmailSubject => 'సద్గురు క్యాటరింగ్ OS సహాయం';
+
+  @override
+  String get supportEmailBody =>
+      'నమస్కారం, సద్గురు క్యాటరింగ్ OS గురించి నాకు సహాయం కావాలి.';
+
+  @override
+  String get supportEmailUnavailable =>
+      'ఈ పరికరంలో ఇమెయిల్ యాప్ అందుబాటులో లేదు.';
+
+  @override
+  String get aboutApp => 'సద్గురు క్యాటరింగ్ OS గురించి';
+
+  @override
+  String get aboutDescription =>
+      'సద్గురు క్యాటరింగ్ OS క్యాటరింగ్ ఈవెంట్లు, ఆర్థికాలు మరియు వ్యాపార కార్యకలాపాలను నిర్వహించడంలో సహాయపడుతుంది.';
 }
