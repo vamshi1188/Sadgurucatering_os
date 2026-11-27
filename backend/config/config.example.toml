@@ -17,10 +17,9 @@ user = "sadguru"
 password = "CHANGE_ME"
 ssl_mode = "disable"
 
-[auth]
-password = "CHANGE_ME"
-session_secret = "CHANGE_ME"
-secure = false
+[auth.bootstrap_owner]
+username = "admin"
+password = "admin123"
 
 [shutdown]
 timeout = "10s"

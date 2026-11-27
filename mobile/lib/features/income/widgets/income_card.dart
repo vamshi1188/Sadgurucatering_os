@@ -50,11 +50,12 @@ class IncomeCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
-                IconButton(
-                  onPressed: onDelete,
-                  tooltip: deleteLabel,
-                  icon: const Icon(Icons.delete_outline),
-                ),
+                if (onDelete != null)
+                  IconButton(
+                    onPressed: onDelete,
+                    tooltip: deleteLabel,
+                    icon: const Icon(Icons.delete_outline),
+                  ),
               ],
             ),
           ],

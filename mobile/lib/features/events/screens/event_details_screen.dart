@@ -23,6 +23,7 @@ class EventWorkspaceScreen extends StatefulWidget {
   const EventWorkspaceScreen({
     required this.controller,
     required this.eventId,
+    this.canEdit = true,
     this.incomeController,
     this.expenseController,
     this.profitabilityController,
@@ -31,6 +32,7 @@ class EventWorkspaceScreen extends StatefulWidget {
 
   final EventController controller;
   final int eventId;
+  final bool canEdit;
   final IncomeController? incomeController;
   final ExpenseController? expenseController;
   final ProfitabilityController? profitabilityController;
@@ -62,7 +64,7 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
       MaterialPageRoute<void>(
         builder: (context) => CreateIncomeScreen(
           controller: incomeController,
-          onCreated: () => Navigator.of(context).pop(),
+          onCreated: widget.canEdit ? () => Navigator.of(context).pop() : null,
         ),
       ),
     );
@@ -78,7 +80,7 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
       MaterialPageRoute<void>(
         builder: (context) => CreateExpenseScreen(
           controller: expenseController,
-          onCreated: () => Navigator.of(context).pop(),
+          onCreated: widget.canEdit ? () => Navigator.of(context).pop() : null,
         ),
       ),
     );
@@ -169,20 +171,23 @@ class _EventWorkspaceScreenState extends State<EventWorkspaceScreen> {
             return _EventDetailsContent(
               event: event,
               controller: widget.controller,
+              canEdit: widget.canEdit,
             );
           }
 
           if (_selectedModule == 1 && widget.incomeController != null) {
             return IncomeListScreen(
               controller: widget.incomeController!,
-              onAddIncome: _openCreateIncome,
+              onAddIncome: widget.canEdit ? _openCreateIncome : null,
+              canEdit: widget.canEdit,
             );
           }
 
           if (_selectedModule == 2 && widget.expenseController != null) {
             return ExpenseListScreen(
               controller: widget.expenseController!,
-              onAddExpense: _openCreateExpense,
+              onAddExpense: widget.canEdit ? _openCreateExpense : null,
+              canEdit: widget.canEdit,
             );
           }
 
@@ -289,10 +294,15 @@ class _WorkspaceModulePlaceholder extends StatelessWidget {
 }
 
 class _EventDetailsContent extends StatelessWidget {
-  const _EventDetailsContent({required this.event, required this.controller});
+  const _EventDetailsContent({
+    required this.event,
+    required this.controller,
+    required this.canEdit,
+  });
 
   final Event event;
   final EventController controller;
+  final bool canEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -321,10 +331,12 @@ class _EventDetailsContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.large),
           _EventInformationCard(event: event),
           const SizedBox(height: AppSpacing.medium),
-          _EventStatusAction(event: event, controller: controller),
-          const SizedBox(height: AppSpacing.medium),
-          _EventDeleteAction(event: event, controller: controller),
-          const SizedBox(height: AppSpacing.medium),
+          if (canEdit) ...[
+            _EventStatusAction(event: event, controller: controller),
+            const SizedBox(height: AppSpacing.medium),
+            _EventDeleteAction(event: event, controller: controller),
+            const SizedBox(height: AppSpacing.medium),
+          ],
           _EventMetadataCard(event: event, l10n: l10n),
         ],
       ),

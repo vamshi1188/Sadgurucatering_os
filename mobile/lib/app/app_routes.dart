@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../core/errors/app_error_localization.dart';
 import '../core/network/api_client.dart';
+import '../core/widgets/error_view.dart';
 import '../core/widgets/loading_view.dart';
 import '../features/authentication/controllers/authentication_controller.dart';
 import '../features/authentication/models/authentication_state.dart';
 import '../features/authentication/screens/login_screen.dart';
+import '../features/authentication/screens/change_password_screen.dart';
 import '../features/application_shell/screens/application_shell_screen.dart';
 import '../localization/app_localizations.dart';
 
@@ -46,27 +49,44 @@ class _AuthenticationGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = controller.state;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final localization = AppLocalizations.of(context)!;
+        final state = controller.state;
 
-    if (state.status == AuthenticationStatus.unknown) {
-      return Scaffold(
-        body: LoadingView(
-          message: AppLocalizations.of(context)!.loading,
-        ),
-      );
-    }
+        if (state.status == AuthenticationStatus.unknown) {
+          final error = controller.error;
+          if (error != null) {
+            return Scaffold(
+              body: ErrorView(
+                message: localizedAppErrorMessage(localization, error),
+                retryLabel: localization.retry,
+                onRetry: error.retryable ? controller.checkSession : null,
+              ),
+            );
+          }
 
-    if (state.isUnauthenticated) {
-      return LoginScreen(
-        controller: controller,
-        onLocaleChanged: onLocaleChanged,
-      );
-    }
+          return Scaffold(body: LoadingView(message: localization.loading));
+        }
 
-    return ApplicationShellScreen(
-      onLocaleChanged: onLocaleChanged,
-      authenticationController: controller,
-      apiClient: apiClient,
+        if (state.isUnauthenticated || state.user == null) {
+          return LoginScreen(
+            controller: controller,
+            onLocaleChanged: onLocaleChanged,
+          );
+        }
+
+        if (state.user!.mustChangePassword) {
+          return ChangePasswordScreen(controller: controller);
+        }
+
+        return ApplicationShellScreen(
+          onLocaleChanged: onLocaleChanged,
+          authenticationController: controller,
+          apiClient: apiClient,
+        );
+      },
     );
   }
 }

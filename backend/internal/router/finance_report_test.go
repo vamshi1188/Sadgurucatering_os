@@ -17,7 +17,7 @@ import (
 
 func TestFinanceReportRouteRequiresAuthentication(t *testing.T) {
 	handler := NewWithFinanceReport(
-		auth.New(auth.Config{Password: "test-password", Secret: "test-session-secret"}),
+		auth.New(),
 		events.NewHandler(nil),
 		finance.NewHandler(nil),
 		dashboard.NewHandler(nil),
@@ -41,10 +41,7 @@ func TestFinanceReportAuthenticatedRouteReturnsReportEnvelope(t *testing.T) {
 	}
 	defer db.Close()
 
-	authHandler := auth.New(auth.Config{
-		Password: "test-password",
-		Secret:   "test-session-secret",
-	})
+	authHandler, _ := newRouterAuthHandler(t, "owner")
 	financeReportHandler := financeReport.NewHandler(
 		financeReport.NewService(financeReport.NewRepository(db)),
 	)
@@ -59,7 +56,7 @@ func TestFinanceReportAuthenticatedRouteReturnsReportEnvelope(t *testing.T) {
 	login := httptest.NewRequest(
 		http.MethodPost,
 		"/api/v1/auth/login",
-		strings.NewReader(`{"password":"test-password"}`),
+		strings.NewReader(`{"username":"owner","password":"test-password"}`),
 	)
 	login.Header.Set("Content-Type", "application/json")
 	loginRecorder := httptest.NewRecorder()
@@ -67,9 +64,13 @@ func TestFinanceReportAuthenticatedRouteReturnsReportEnvelope(t *testing.T) {
 	if loginRecorder.Code != http.StatusOK {
 		t.Fatalf("login returned %d, want 200", loginRecorder.Code)
 	}
-	cookies := loginRecorder.Result().Cookies()
-	if len(cookies) != 1 {
-		t.Fatalf("login returned %d cookies, want one", len(cookies))
+	var loginBody struct {
+		Data struct {
+			Token string `json:"token"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(loginRecorder.Body.Bytes(), &loginBody); err != nil || loginBody.Data.Token == "" {
+		t.Fatalf("login did not return bearer token: %s", loginRecorder.Body)
 	}
 
 	mock.ExpectBegin()
@@ -98,7 +99,7 @@ func TestFinanceReportAuthenticatedRouteReturnsReportEnvelope(t *testing.T) {
 		"/api/v1/finance/summary?period=all_time",
 		nil,
 	)
-	request.AddCookie(cookies[0])
+	request.Header.Set("Authorization", "Bearer "+loginBody.Data.Token)
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {

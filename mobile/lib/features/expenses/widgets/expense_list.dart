@@ -9,14 +9,14 @@ class ExpenseList extends StatelessWidget {
     required this.expenses,
     required this.createdAtLabel,
     required this.deleteLabel,
-    required this.onDelete,
+    this.onDelete,
     super.key,
   });
 
   final List<Expense> expenses;
   final String createdAtLabel;
   final String deleteLabel;
-  final ValueChanged<Expense> onDelete;
+  final ValueChanged<Expense>? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class ExpenseList extends StatelessWidget {
             expense: expense,
             createdAtLabel: createdAtLabel,
             deleteLabel: deleteLabel,
-            onDelete: () => onDelete(expense),
+            onDelete: onDelete == null ? null : () => onDelete!(expense),
           ),
           const SizedBox(height: AppSpacing.small),
         ],

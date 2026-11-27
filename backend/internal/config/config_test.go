@@ -41,10 +41,9 @@ user = "sadguru"
 password = "test-password"
 ssl_mode = "disable"
 
-[auth]
-password = "test-auth-password"
-session_secret = "test-session-secret"
-secure = false
+[auth.bootstrap_owner]
+username = "admin"
+password = "admin123"
 
 [shutdown]
 timeout = "5s"
@@ -87,6 +86,11 @@ func TestLoadFromFile(t *testing.T) {
 		t.Fatalf("unexpected log level: %s", cfg.LogLevel)
 	}
 
+	if cfg.Auth.BootstrapOwner.Username != "admin" ||
+		cfg.Auth.BootstrapOwner.Password != "admin123" {
+		t.Fatal("unexpected bootstrap owner credentials")
+	}
+
 	if cfg.HTTP.Host != "127.0.0.1" {
 		t.Fatalf("unexpected HTTP host: %s", cfg.HTTP.Host)
 	}
@@ -97,10 +101,6 @@ func TestLoadFromFile(t *testing.T) {
 
 	if cfg.Database.URL != "postgres://sadguru:test-password@localhost:5432/sadguru?sslmode=disable" {
 		t.Fatalf("unexpected database URL: %s", cfg.Database.URL)
-	}
-
-	if cfg.Auth.Password != "test-auth-password" {
-		t.Fatalf("unexpected auth password")
 	}
 
 	if cfg.ShutdownTimeout != 5*time.Second {
@@ -263,6 +263,41 @@ func TestValidateRequiresDatabaseInProduction(t *testing.T) {
 	}
 }
 
+func TestProductionRejectsDefaultBootstrapPassword(t *testing.T) {
+	content := strings.Replace(
+		validConfigTOML(),
+		`environment = "test"`,
+		`environment = "production"`,
+		1,
+	)
+	path := writeTestConfig(t, content)
+
+	_, err := LoadFromFile(path)
+	if err == nil || !strings.Contains(err.Error(), "at least 12 bytes") {
+		t.Fatalf("expected production bootstrap password validation error, got %v", err)
+	}
+}
+
+func TestProductionAcceptsConfiguredBootstrapPassword(t *testing.T) {
+	content := strings.Replace(
+		validConfigTOML(),
+		`environment = "test"`,
+		`environment = "production"`,
+		1,
+	)
+	content = strings.Replace(
+		content,
+		`password = "admin123"`,
+		`password = "Catering-Admin-2026"`,
+		1,
+	)
+	path := writeTestConfig(t, content)
+
+	if _, err := LoadFromFile(path); err != nil {
+		t.Fatalf("expected valid production configuration, got %v", err)
+	}
+}
+
 func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 	cfg := Config{
 		Environment: "development",
@@ -282,6 +317,12 @@ func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 			AccessKey: "secret-access-key",
 			SecretKey: "secret-secret-key",
 		},
+		Auth: AuthConfig{
+			BootstrapOwner: BootstrapOwnerConfig{
+				Username: "admin",
+				Password: "bootstrap-secret-password",
+			},
+		},
 		ShutdownTimeout: 10 * time.Second,
 	}
 
@@ -291,6 +332,7 @@ func TestConfigStringDoesNotExposeSecrets(t *testing.T) {
 		"secret-password",
 		"secret-access-key",
 		"secret-secret-key",
+		"bootstrap-secret-password",
 	} {
 		if strings.Contains(value, secret) {
 			t.Fatalf("configuration string exposed secret %q", secret)

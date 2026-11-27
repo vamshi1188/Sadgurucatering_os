@@ -67,11 +67,13 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               children: [
                 EmptyView(message: l10n.noEvents),
-                const SizedBox(height: AppSpacing.large),
-                _CreateEventButton(
-                  label: l10n.createEvent,
-                  onPressed: widget.onCreateEvent,
-                ),
+                if (widget.onCreateEvent != null) ...[
+                  const SizedBox(height: AppSpacing.large),
+                  _CreateEventButton(
+                    label: l10n.createEvent,
+                    onPressed: widget.onCreateEvent,
+                  ),
+                ],
               ],
             ),
           );
@@ -93,11 +95,13 @@ class _EventListScreenState extends State<EventListScreen> {
                 count: widget.controller.events.length,
               ),
               const SizedBox(height: AppSpacing.large),
-              _CreateEventButton(
-                label: l10n.createEvent,
-                onPressed: widget.onCreateEvent,
-              ),
-              const SizedBox(height: AppSpacing.large),
+              if (widget.onCreateEvent != null) ...[
+                _CreateEventButton(
+                  label: l10n.createEvent,
+                  onPressed: widget.onCreateEvent,
+                ),
+                const SizedBox(height: AppSpacing.large),
+              ],
               EventList(
                 events: widget.controller.events,
                 onEventTap: (event) {

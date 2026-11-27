@@ -43,10 +43,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPassword => 'Enter your password';
 
   @override
+  String get username => 'Username';
+
+  @override
+  String get enterUsername => 'Enter your username';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
   String get login => 'Login';
 
   @override
+  String get invalidCredentials => 'Invalid username or password.';
+
+  @override
   String get logout => 'Logout';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match.';
+
+  @override
+  String get passwordMinLength => 'Use a password between 12 and 72 bytes.';
+
+  @override
+  String get passwordChanged => 'Password changed successfully.';
+
+  @override
+  String get userManagement => 'User Management';
+
+  @override
+  String get createUser => 'Create user';
+
+  @override
+  String get editUser => 'Edit user';
+
+  @override
+  String get role => 'Role';
+
+  @override
+  String get ownerRole => 'Owner';
+
+  @override
+  String get supervisorRole => 'Supervisor';
+
+  @override
+  String get accountStatus => 'Account status';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get resetPassword => 'Reset password';
+
+  @override
+  String get deleteUser => 'Delete user';
+
+  @override
+  String get deleteUserConfirmation =>
+      'Are you sure you want to delete this user?';
+
+  @override
+  String get noUsers => 'No users available';
+
+  @override
+  String get userCreated => 'User created successfully.';
+
+  @override
+  String get userUpdated => 'User updated successfully.';
+
+  @override
+  String get userDeleted => 'User deleted successfully.';
+
+  @override
+  String get temporaryPassword => 'Temporary password';
+
+  @override
+  String get currentUser => 'Signed-in account';
 
   @override
   String get dashboard => 'Dashboard';
@@ -301,4 +392,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netProfit => 'Net Profit';
+
+  @override
+  String get financePeriod => 'Finance period';
+
+  @override
+  String get last30Days => 'Last 30 Days';
+
+  @override
+  String get customRange => 'Custom Range';
+
+  @override
+  String get allTime => 'All Time';
+
+  @override
+  String get eventFinancialBreakdown => 'Event-wise Breakdown';
+
+  @override
+  String get recentTransactions => 'Recent Transactions';
+
+  @override
+  String get noFinanceEvents => 'No financial activity for this period';
+
+  @override
+  String get noFinanceTransactions => 'No transactions for this period';
+
+  @override
+  String get loadMore => 'Load More';
+
+  @override
+  String get applicationSection => 'Application';
+
+  @override
+  String get preferencesSection => 'Preferences';
+
+  @override
+  String get supportSection => 'Support';
+
+  @override
+  String get administrationSection => 'Administration';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get build => 'Build';
+
+  @override
+  String get appVersionUnavailable => 'Version information unavailable';
+
+  @override
+  String get shareApp => 'Share App';
+
+  @override
+  String get shareAppDescription => 'Share the installable application';
+
+  @override
+  String get shareAppUnavailable =>
+      'The app package is unavailable and no distribution link is configured.';
+
+  @override
+  String get shareAppFailed =>
+      'Unable to open the share sheet. Please try again.';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get supportEmailSubject => 'Sadguru Catering OS support';
+
+  @override
+  String get supportEmailBody => 'Hello, I need help with Sadguru Catering OS.';
+
+  @override
+  String get supportEmailUnavailable =>
+      'No email app is available on this device.';
+
+  @override
+  String get aboutApp => 'About Sadguru Catering OS';
+
+  @override
+  String get aboutDescription =>
+      'Sadguru Catering OS helps manage catering events, finances, and business operations.';
 }

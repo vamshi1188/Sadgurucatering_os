@@ -15,12 +15,14 @@ import '../widgets/income_summary.dart';
 class IncomeListScreen extends StatefulWidget {
   const IncomeListScreen({
     required this.controller,
-    required this.onAddIncome,
+    this.onAddIncome,
+    this.canEdit = true,
     super.key,
   });
 
   final IncomeController controller;
-  final VoidCallback onAddIncome;
+  final VoidCallback? onAddIncome;
+  final bool canEdit;
 
   @override
   State<IncomeListScreen> createState() => _IncomeListScreenState();
@@ -101,14 +103,16 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
                 ),
               ],
               const SizedBox(height: AppSpacing.medium),
-              PrimaryButton(
-                label: l10n.addIncome,
-                icon: Icons.add_rounded,
-                onPressed: widget.controller.isMutating
-                    ? null
-                    : widget.onAddIncome,
-              ),
-              const SizedBox(height: AppSpacing.medium),
+              if (widget.onAddIncome != null) ...[
+                PrimaryButton(
+                  label: l10n.addIncome,
+                  icon: Icons.add_rounded,
+                  onPressed: widget.controller.isMutating
+                      ? null
+                      : widget.onAddIncome,
+                ),
+                const SizedBox(height: AppSpacing.medium),
+              ],
               if (widget.controller.incomes.isEmpty)
                 EmptyView(message: l10n.noIncomeRecords)
               else
@@ -116,7 +120,7 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
                   incomes: widget.controller.incomes,
                   createdAtLabel: l10n.createdAt,
                   deleteLabel: l10n.deleteIncome,
-                  onDelete: _confirmDelete,
+                  onDelete: widget.canEdit ? _confirmDelete : null,
                 ),
             ],
           ),

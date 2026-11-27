@@ -1,16 +1,14 @@
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 import 'api_exception.dart';
 import 'api_response.dart';
-import 'persistent_cookie_storage.dart';
+import '../storage/secure_storage.dart';
 
 class ApiClient {
   ApiClient({
     required String baseUrl,
     Dio? dio,
-    CookieJar? cookieJar,
+    TokenStorage? secureStorage,
     Duration connectTimeout = const Duration(seconds: 10),
     Duration receiveTimeout = const Duration(seconds: 15),
   }) : _dio =
@@ -26,34 +24,49 @@ class ApiClient {
                },
              ),
            ) {
-    _cookieJar = cookieJar ?? CookieJar();
-    _dio.interceptors.add(CookieManager(_cookieJar));
+    _secureStorage = secureStorage;
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await _secureStorage?.readToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401 &&
+              !error.requestOptions.path.endsWith('/auth/login')) {
+            await _secureStorage?.clearToken();
+            onUnauthorized?.call();
+          }
+          handler.next(error);
+        },
+      ),
+    );
   }
 
   static Future<ApiClient> create({
     required String baseUrl,
     Dio? dio,
-    CookieJar? cookieJar,
-    PersistentCookieStorage? cookieStorage,
+    TokenStorage? secureStorage,
     Duration connectTimeout = const Duration(seconds: 10),
     Duration receiveTimeout = const Duration(seconds: 15),
   }) async {
-    final resolvedCookieJar =
-        cookieJar ??
-        await (cookieStorage ?? const PersistentCookieStorage())
-            .createCookieJar();
-
     return ApiClient(
       baseUrl: baseUrl,
       dio: dio,
-      cookieJar: resolvedCookieJar,
+      secureStorage: secureStorage ?? SecureStorage(),
       connectTimeout: connectTimeout,
       receiveTimeout: receiveTimeout,
     );
   }
 
   final Dio _dio;
-  late final CookieJar _cookieJar;
+  late final TokenStorage? _secureStorage;
+  TokenStorage? get secureStorage => _secureStorage;
+
+  void Function()? onUnauthorized;
 
   Future<ApiResponse<T>> get<T>(
     String path, {
