@@ -36,7 +36,8 @@ The initial owner account is created only when the users table is empty. Its
 username and password come from `[auth.bootstrap_owner]` in the backend
 configuration. The example config uses `admin` / `admin123` for development;
 production configuration must use a password of at least 12 bytes. The account
-is marked to require a password change at first login.
+can sign in without a forced password-change step. Migration 000007 clears this
+flag for an existing default bootstrap admin.
 
 Protected API operations are available to active owners and supervisors. Reads
 are available to both roles; event and finance writes and user administration

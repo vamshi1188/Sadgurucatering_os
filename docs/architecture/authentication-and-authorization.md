@@ -49,11 +49,11 @@ if the `users` table is empty:
 - Initial password: `admin123`
 - Role: `owner`
 
-The password is bcrypt-hashed, and `must_change_password` is set. Bootstrap
-does not recreate users or reset passwords on later starts. The first
-successful login is limited to the password-change operation until the
-administrator changes the password. Change the initial password immediately;
-do not expose it through an API response other than the normal login input or
+The password is bcrypt-hashed, and the bootstrap account is not forced through
+a password-change step. Bootstrap does not recreate users or reset passwords
+on later starts. Migration 000007 clears the flag for an existing default
+bootstrap admin. Change the initial password before production deployment; do
+not expose it through an API response other than the normal login input or
 include it in operational logs.
 
 ## Roles and permissions
