@@ -56,7 +56,7 @@ func (repo *SQLRepository) BootstrapOwner(
 	}
 	_, err = tx.ExecContext(ctx, `
 		INSERT INTO users (username, password_hash, role, active, must_change_password)
-		VALUES ($1, $2, 'owner', TRUE, TRUE)
+		VALUES ($1, $2, 'owner', TRUE, FALSE)
 	`, username, string(hash))
 	if err != nil {
 		return err

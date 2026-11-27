@@ -52,7 +52,7 @@ func TestBootstrapCreatesOwnerWhenNoUsersExist(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"pg_advisory_xact_lock"}).AddRow(nil))
 	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
-	mock.ExpectExec("INSERT INTO users").
+	mock.ExpectExec("(?s)INSERT INTO users.*TRUE, FALSE").
 		WithArgs("owner-initial", passwordHashMatcher{password: "bootstrap-password"}).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
